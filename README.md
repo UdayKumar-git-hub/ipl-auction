@@ -98,6 +98,13 @@ VITE_SUPABASE_ANON_KEY=your_supabase_anon_key
 - **Team (CSK)**: `csk@ipl.com` / `team123`
 - **Team (MI)**: `mi@ipl.com` / `team123`
 - **Team (RCB)**: `rcb@ipl.com` / `team123`
+- **Team (GT)**: `gt@ipl.com` / `team123`
+- **Team (KKR)**: `kkr@ipl.com` / `team123`
+- **Team (SRH)**: `srh@ipl.com` / `team123`
+- **Team (DC)**: `dc@ipl.com` / `team123`
+- **Team (PBKS)**: `pbks@ipl.com` / `team123`
+- **Team (LSG)**: `lsg@ipl.com` / `team123`
+- **Team (RR)**: `rr@ipl.com` / `team123`
 
 ## 🏗️ Database Schema
 
