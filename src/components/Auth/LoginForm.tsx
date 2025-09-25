@@ -69,14 +69,6 @@ export function LoginForm() {
             {loading ? 'Signing in...' : 'Sign In'}
           </button>
         </form>
-
-        <div className="mt-8 p-4 bg-gray-50 rounded-lg border-2 border-gray-200">
-          <h3 className="font-bold text-gray-800 mb-2">Demo Accounts:</h3>
-          <div className="text-sm space-y-1 text-gray-600">
-            <p><strong>Admin:</strong> admin@ipl.com / admin123</p>
-            <p><strong>Team:</strong> csk@ipl.com / team123</p>
-          </div>
-        </div>
       </div>
     </div>
   );
