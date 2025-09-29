@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Trophy, User, Lock } from 'lucide-react';
 import { useAuth } from '../../hooks/useAuth';
+import toast from 'react-hot-toast'; // Assuming you use react-hot-toast for notifications
 
 export function LoginForm() {
   const [email, setEmail] = useState('');
@@ -11,8 +12,20 @@ export function LoginForm() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
-    await signIn(email, password);
-    setLoading(false);
+
+    // --- FIX: Added try...catch...finally block for robust error handling ---
+    try {
+      await signIn(email, password);
+      // On success, the AuthProvider will redirect the user.
+      // A success toast is optional here, as the redirect is clear feedback.
+    } catch (error: any) {
+      // On failure, show a user-friendly error message.
+      console.error('Login failed:', error);
+      toast.error(error.message || 'Invalid email or password. Please try again.');
+    } finally {
+      // This block ensures the loading state is reset even if an error occurs.
+      setLoading(false);
+    }
   };
 
   return (
@@ -28,12 +41,15 @@ export function LoginForm() {
 
         <form onSubmit={handleSubmit} className="space-y-6">
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
+            {/* ACCESSIBILITY FIX: Added htmlFor to connect label with input */}
+            <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-2">
               Email Address
             </label>
             <div className="relative">
-              <User className="absolute left-3 top-3 h-5 w-5 text-gray-400" />
+              {/* ACCESSIBILITY FIX: Added aria-hidden for decorative icon */}
+              <User className="absolute left-3 top-3 h-5 w-5 text-gray-400" aria-hidden="true" />
               <input
+                id="email"
                 type="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
@@ -45,12 +61,13 @@ export function LoginForm() {
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
+            <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-2">
               Password
             </label>
             <div className="relative">
-              <Lock className="absolute left-3 top-3 h-5 w-5 text-gray-400" />
+              <Lock className="absolute left-3 top-3 h-5 w-5 text-gray-400" aria-hidden="true" />
               <input
+                id="password"
                 type="password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
