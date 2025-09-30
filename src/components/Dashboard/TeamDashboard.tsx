@@ -180,31 +180,58 @@ export function TeamDashboard() {
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
       {/* Live Auction Display */}
       {currentAuctionPlayer && (
-        <div className="bg-gradient-to-r from-red-500 to-red-600 rounded-2xl p-6 mb-8 text-white">
+        <div className="bg-gradient-to-r from-red-500 to-red-600 rounded-2xl p-8 mb-8 text-white">
           <div className="flex items-center space-x-3 mb-4">
             <Gavel className="h-6 w-6 animate-bounce" />
-            <h2 className="text-xl font-bold">LIVE AUCTION</h2>
+            <h2 className="text-2xl font-bold">🔴 LIVE AUCTION</h2>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div>
               <img
                 src={currentAuctionPlayer.photo_url}
                 alt={currentAuctionPlayer.name}
-                className="w-full h-48 object-cover rounded-lg"
+                className="w-full h-64 object-cover rounded-xl shadow-lg"
               />
             </div>
             <div className="space-y-3">
               <div>
-                <h3 className="text-2xl font-bold">{currentAuctionPlayer.name}</h3>
-                <p className="text-lg opacity-90">{currentAuctionPlayer.role} • {currentAuctionPlayer.country}</p>
+                <h3 className="text-3xl font-bold">{currentAuctionPlayer.name}</h3>
+                <p className="text-xl opacity-90">{currentAuctionPlayer.role} • {currentAuctionPlayer.country}</p>
               </div>
               <div className="bg-white/20 rounded-lg p-3">
                 <p className="text-sm opacity-80">Base Price</p>
-                <p className="text-lg font-bold">₹{currentAuctionPlayer.base_price.toLocaleString()}</p>
+                <p className="text-2xl font-bold">₹{currentAuctionPlayer.base_price.toLocaleString()}</p>
               </div>
               <div className="bg-white/30 rounded-lg p-3">
                 <p className="text-sm opacity-80">Current Bid</p>
-                <p className="text-2xl font-bold">₹{currentBid.toLocaleString()}</p>
+                <p className="text-4xl font-bold animate-pulse">₹{currentBid.toLocaleString()}</p>
+              </div>
+              <div className="bg-white/20 rounded-lg p-3">
+                <p className="text-sm opacity-80 mb-2">Career Stats</p>
+                <div className="grid grid-cols-2 gap-2 text-sm">
+                  <div>
+                    <span className="opacity-80">Matches:</span>
+                    <span className="font-medium ml-1">{currentAuctionPlayer.stats.matches}</span>
+                  </div>
+                  {currentAuctionPlayer.stats.runs && (
+                    <div>
+                      <span className="opacity-80">Runs:</span>
+                      <span className="font-medium ml-1">{currentAuctionPlayer.stats.runs}</span>
+                    </div>
+                  )}
+                  {currentAuctionPlayer.stats.wickets && (
+                    <div>
+                      <span className="opacity-80">Wickets:</span>
+                      <span className="font-medium ml-1">{currentAuctionPlayer.stats.wickets}</span>
+                    </div>
+                  )}
+                  {currentAuctionPlayer.stats.average && (
+                    <div>
+                      <span className="opacity-80">Average:</span>
+                      <span className="font-medium ml-1">{currentAuctionPlayer.stats.average}</span>
+                    </div>
+                  )}
+                </div>
               </div>
             </div>
           </div>
