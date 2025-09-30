@@ -18,41 +18,37 @@ export function TeamDashboard() {
   const fetchTeamData = useCallback(async () => {
     if (!user?.team_name) return;
 
+    setLoading(true);
     try {
-      // Fetch team and its sold players in a single query
+      // First fetch the team data
       const { data, error } = await supabase
         .from('teams')
-        .select(`
-          id,
-          name,
-          short_name,
-          logo_url,
-          total_purse,
-          purse_remaining,
-          players!inner(
-            id,
-            name,
-            role,
-            country,
-            photo_url,
-            current_price,
-            is_sold,
-            team_id
-          )
-        `)
+        .select('*')
         .eq('name', user.team_name)
-        .eq('players.is_sold', true) // Filter the joined players
         .single();
 
       if (error) throw error;
 
       if (data) {
         setTeam(data);
-        setPlayers(data.players || []);
+        
+        // Then fetch the players for this team
+        const { data: playersData, error: playersError } = await supabase
+          .from('players')
+          .select('id, name, role, country, photo_url, current_price, is_sold, team_id')
+          .eq('team_id', data.id)
+          .eq('is_sold', true);
+
+        if (playersError) throw playersError;
+        
+        setPlayers(playersData || []);
       }
     } catch (error: any) {
       console.error('Error fetching team data:', error);
       toast.error(`Error loading team data: ${error.message}`);
+      // Set empty states on error to prevent infinite loading
+      setTeam(null);
+      setPlayers([]);
     } finally {
       setLoading(false);
     }
