@@ -22,7 +22,24 @@ export function TeamDashboard() {
       // Fetch team and its sold players in a single query
       const { data, error } = await supabase
         .from('teams')
-        .select('*, players(*)')
+        .select(`
+          id,
+          name,
+          short_name,
+          logo_url,
+          total_purse,
+          purse_remaining,
+          players!inner(
+            id,
+            name,
+            role,
+            country,
+            photo_url,
+            current_price,
+            is_sold,
+            team_id
+          )
+        `)
         .eq('name', user.team_name)
         .eq('players.is_sold', true) // Filter the joined players
         .single();
