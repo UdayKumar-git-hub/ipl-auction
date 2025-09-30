@@ -18,7 +18,6 @@ export function AdminDashboard() {
   const [showAddPlayer, setShowAddPlayer] = useState(false);
   const [showEditTeam, setShowEditTeam] = useState(false);
   const [selectedTeam, setSelectedTeam] = useState<Team | null>(null);
-  const [playerSearchTerm, setPlayerSearchTerm] = useState('');
   
   // Auction state
   const [currentAuctionPlayer, setCurrentAuctionPlayer] = useState<Player | null>(null);
