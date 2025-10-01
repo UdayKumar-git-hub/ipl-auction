@@ -227,6 +227,12 @@ export function AdminDashboard() {
 
   const unsoldPlayers = players.filter(p => !p.is_sold);
 
+  const filteredUnsoldPlayers = unsoldPlayers.filter(player =>
+    player.name.toLowerCase().includes(playerSearchTerm.toLowerCase()) ||
+    player.role.toLowerCase().includes(playerSearchTerm.toLowerCase()) ||
+    player.country.toLowerCase().includes(playerSearchTerm.toLowerCase())
+  );
+
   const stats = {
     totalPlayers: players.length,
     soldPlayers: players.filter(p => p.is_sold).length,
@@ -481,16 +487,77 @@ export function AdminDashboard() {
           <div className="bg-white rounded-xl shadow-lg p-6 border-2 border-yellow-500">
             <div className="flex items-center justify-between mb-4">
               <h3 className="text-lg font-bold text-gray-900">Player Selection</h3>
-              <button
-                onClick={selectRandomPlayer}
-                disabled={auctionLoading || unsoldPlayers.length === 0 || !!currentAuctionPlayer}
-                className="bg-yellow-500 hover:bg-yellow-600 text-black font-bold px-4 py-2 rounded-lg transition-colors disabled:opacity-50 flex items-center space-x-2"
-              >
-                <Shuffle className="h-4 w-4" />
-                <span>Random Player</span>
-              </button>
+              <div className="flex space-x-3">
+                <button
+                  onClick={() => setShowPlayerSearch(!showPlayerSearch)}
+                  disabled={auctionLoading || !!currentAuctionPlayer}
+                  className="bg-blue-500 hover:bg-blue-600 text-white font-bold px-4 py-2 rounded-lg transition-colors disabled:opacity-50 flex items-center space-x-2"
+                >
+                  <Search className="h-4 w-4" />
+                  <span>Search Player</span>
+                </button>
+                <button
+                  onClick={selectRandomPlayer}
+                  disabled={auctionLoading || unsoldPlayers.length === 0 || !!currentAuctionPlayer}
+                  className="bg-yellow-500 hover:bg-yellow-600 text-black font-bold px-4 py-2 rounded-lg transition-colors disabled:opacity-50 flex items-center space-x-2"
+                >
+                  <Shuffle className="h-4 w-4" />
+                  <span>Random Player</span>
+                </button>
+              </div>
             </div>
             <p className="text-gray-600">Available players: {unsoldPlayers.length}</p>
+            
+            {/* Player Search Interface */}
+            {showPlayerSearch && (
+              <div className="mt-4 space-y-4">
+                <div className="relative">
+                  <Search className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
+                  <input
+                    type="text"
+                    placeholder="Search players by name, role, or country..."
+                    value={playerSearchTerm}
+                    onChange={(e) => setPlayerSearchTerm(e.target.value)}
+                    className="w-full pl-10 pr-4 py-2 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none"
+                  />
+                </div>
+                
+                <div className="max-h-64 overflow-y-auto space-y-2">
+                  {filteredUnsoldPlayers.slice(0, 10).map(player => (
+                    <div key={player.id} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors">
+                      <div className="flex items-center space-x-3">
+                        <img
+                          src={player.photo_url}
+                          alt={player.name}
+                          className="w-10 h-10 rounded-full object-cover"
+                        />
+                        <div>
+                          <h4 className="font-medium text-gray-900">{player.name}</h4>
+                          <p className="text-sm text-gray-500">{player.role} • {player.country}</p>
+                          <p className="text-sm font-medium text-green-600">₹{player.base_price.toLocaleString()}</p>
+                        </div>
+                      </div>
+                      <button
+                        onClick={() => {
+                          startAuction(player);
+                          setShowPlayerSearch(false);
+                          setPlayerSearchTerm('');
+                        }}
+                        disabled={auctionLoading}
+                        className="bg-green-500 hover:bg-green-600 text-white font-medium px-3 py-1 rounded-lg transition-colors disabled:opacity-50"
+                      >
+                        Select
+                      </button>
+                    </div>
+                  ))}
+                  {filteredUnsoldPlayers.length === 0 && playerSearchTerm && (
+                    <div className="text-center py-4 text-gray-500">
+                      No players found matching "{playerSearchTerm}"
+                    </div>
+                  )}
+                </div>
+              </div>
+            )}
           </div>
 
           {/* Current Auction Display */}
@@ -518,6 +585,34 @@ export function AdminDashboard() {
                   <div className="bg-white/20 rounded-lg p-4">
                     <p className="text-sm opacity-80">Current Bid</p>
                     <p className="text-4xl font-bold">₹{currentBid.toLocaleString()}</p>
+                  </div>
+                  
+                  <div className="bg-white/10 rounded-lg p-4">
+                    <p className="text-sm opacity-80 mb-2">Career Stats</p>
+                    <div className="grid grid-cols-2 gap-2 text-sm">
+                      <div>
+                        <span className="opacity-80">Matches:</span>
+                        <span className="font-medium ml-1">{currentAuctionPlayer.stats.matches}</span>
+                      </div>
+                      {currentAuctionPlayer.stats.runs && (
+                        <div>
+                          <span className="opacity-80">Runs:</span>
+                          <span className="font-medium ml-1">{currentAuctionPlayer.stats.runs}</span>
+                        </div>
+                      )}
+                      {currentAuctionPlayer.stats.wickets && (
+                        <div>
+                          <span className="opacity-80">Wickets:</span>
+                          <span className="font-medium ml-1">{currentAuctionPlayer.stats.wickets}</span>
+                        </div>
+                      )}
+                      {currentAuctionPlayer.stats.average && (
+                        <div>
+                          <span className="opacity-80">Average:</span>
+                          <span className="font-medium ml-1">{currentAuctionPlayer.stats.average}</span>
+                        </div>
+                      )}
+                    </div>
                   </div>
 
                   <div className="flex space-x-2">

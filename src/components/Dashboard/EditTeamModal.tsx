@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
-import { X, DollarSign, Users, Trophy } from 'lucide-react';
-import { Team } from '../../types';
+import { X, DollarSign, Users, Trophy, Search, Plus, Trash2 } from 'lucide-react';
+import { Team, Player } from '../../types';
 import { supabase } from '../../lib/supabase';
 import toast from 'react-hot-toast';
 
@@ -11,6 +11,7 @@ interface EditTeamModalProps {
 }
 
 export function EditTeamModal({ team, onClose, onSuccess }: EditTeamModalProps) {
+  const [activeTab, setActiveTab] = useState<'details' | 'players'>('details');
   const [formData, setFormData] = useState({
     name: team.name,
     short_name: team.short_name,
@@ -18,7 +19,42 @@ export function EditTeamModal({ team, onClose, onSuccess }: EditTeamModalProps) 
     purse_remaining: team.purse_remaining.toString(),
     total_purse: team.total_purse.toString()
   });
+  const [teamPlayers, setTeamPlayers] = useState<Player[]>([]);
+  const [availablePlayers, setAvailablePlayers] = useState<Player[]>([]);
+  const [playerSearchTerm, setPlayerSearchTerm] = useState('');
   const [loading, setLoading] = useState(false);
+
+  React.useEffect(() => {
+    if (activeTab === 'players') {
+      fetchPlayers();
+    }
+  }, [activeTab, team.id]);
+
+  const fetchPlayers = async () => {
+    try {
+      // Fetch team players
+      const { data: teamPlayersData, error: teamError } = await supabase
+        .from('players')
+        .select('*')
+        .eq('team_id', team.id)
+        .eq('is_sold', true);
+
+      if (teamError) throw teamError;
+      setTeamPlayers(teamPlayersData || []);
+
+      // Fetch available players
+      const { data: availablePlayersData, error: availableError } = await supabase
+        .from('players')
+        .select('*')
+        .eq('is_sold', false);
+
+      if (availableError) throw availableError;
+      setAvailablePlayers(availablePlayersData || []);
+    } catch (error) {
+      console.error('Error fetching players:', error);
+      toast.error('Error loading players');
+    }
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -84,9 +120,88 @@ export function EditTeamModal({ team, onClose, onSuccess }: EditTeamModalProps) 
     }
   };
 
+  const addPlayerToTeam = async (player: Player) => {
+    if (team.purse_remaining < player.base_price) {
+      toast.error('Insufficient purse remaining');
+      return;
+    }
+
+    setLoading(true);
+    try {
+      // Update player
+      await supabase
+        .from('players')
+        .update({
+          is_sold: true,
+          current_price: player.base_price,
+          team_id: team.id
+        })
+        .eq('id', player.id);
+
+      // Update team
+      await supabase
+        .from('teams')
+        .update({
+          purse_remaining: team.purse_remaining - player.base_price,
+          players_count: team.players_count + 1
+        })
+        .eq('id', team.id);
+
+      toast.success(`${player.name} added to team`);
+      fetchPlayers();
+      onSuccess();
+    } catch (error) {
+      console.error('Error adding player:', error);
+      toast.error('Error adding player');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const removePlayerFromTeam = async (player: Player) => {
+    if (!confirm(`Remove ${player.name} from the team?`)) return;
+
+    setLoading(true);
+    try {
+      // Update player
+      await supabase
+        .from('players')
+        .update({
+          is_sold: false,
+          current_price: null,
+          team_id: null
+        })
+        .eq('id', player.id);
+
+      // Update team
+      await supabase
+        .from('teams')
+        .update({
+          purse_remaining: team.purse_remaining + (player.current_price || player.base_price),
+          players_count: Math.max(0, team.players_count - 1)
+        })
+        .eq('id', team.id);
+
+      toast.success(`${player.name} removed from team`);
+      fetchPlayers();
+      onSuccess();
+    } catch (error) {
+      console.error('Error removing player:', error);
+      toast.error('Error removing player');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const filteredAvailablePlayers = availablePlayers.filter(player =>
+    player.name.toLowerCase().includes(playerSearchTerm.toLowerCase()) ||
+    player.role.toLowerCase().includes(playerSearchTerm.toLowerCase()) ||
+    player.country.toLowerCase().includes(playerSearchTerm.toLowerCase())
+  );
+
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-      <div className="bg-white rounded-xl shadow-2xl w-full max-w-2xl">
+      <div className="bg-white rounded-xl shadow-2xl w-full max-w-4xl max-h-[90vh] overflow-hidden">
         <div className="flex items-center justify-between p-6 border-b">
           <h2 className="text-2xl font-bold text-gray-900">Edit Team</h2>
           <button
@@ -97,7 +212,35 @@ export function EditTeamModal({ team, onClose, onSuccess }: EditTeamModalProps) 
           </button>
         </div>
 
-        <form onSubmit={handleSubmit} className="p-6 space-y-6">
+        {/* Tab Navigation */}
+        <div className="border-b border-gray-200">
+          <nav className="flex space-x-8 px-6">
+            <button
+              onClick={() => setActiveTab('details')}
+              className={`py-4 px-1 border-b-2 font-medium text-sm ${
+                activeTab === 'details'
+                  ? 'border-yellow-500 text-yellow-600'
+                  : 'border-transparent text-gray-500 hover:text-gray-700'
+              }`}
+            >
+              Team Details
+            </button>
+            <button
+              onClick={() => setActiveTab('players')}
+              className={`py-4 px-1 border-b-2 font-medium text-sm ${
+                activeTab === 'players'
+                  ? 'border-yellow-500 text-yellow-600'
+                  : 'border-transparent text-gray-500 hover:text-gray-700'
+              }`}
+            >
+              Players ({teamPlayers.length})
+            </button>
+          </nav>
+        </div>
+
+        <div className="overflow-y-auto" style={{ maxHeight: 'calc(90vh - 200px)' }}>
+          {activeTab === 'details' ? (
+            <form onSubmit={handleSubmit} className="p-6 space-y-6">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -189,31 +332,117 @@ export function EditTeamModal({ team, onClose, onSuccess }: EditTeamModalProps) 
             </div>
           </div>
 
-          <div className="flex space-x-4 pt-6 border-t">
-            <button
-              type="button"
-              onClick={onClose}
-              className="flex-1 px-4 py-2 border-2 border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors"
-            >
-              Cancel
-            </button>
-            <button
-              type="button"
-              onClick={resetPurse}
-              disabled={loading}
-              className="flex-1 px-4 py-2 bg-red-500 hover:bg-red-600 text-white font-medium rounded-lg transition-colors disabled:opacity-50"
-            >
-              Reset Purse
-            </button>
-            <button
-              type="submit"
-              disabled={loading}
-              className="flex-1 px-4 py-2 bg-yellow-500 hover:bg-yellow-600 text-black font-medium rounded-lg transition-colors disabled:opacity-50"
-            >
-              {loading ? 'Updating...' : 'Update Team'}
-            </button>
-          </div>
-        </form>
+              <div className="flex space-x-4 pt-6 border-t">
+                <button
+                  type="button"
+                  onClick={onClose}
+                  className="flex-1 px-4 py-2 border-2 border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="button"
+                  onClick={resetPurse}
+                  disabled={loading}
+                  className="flex-1 px-4 py-2 bg-red-500 hover:bg-red-600 text-white font-medium rounded-lg transition-colors disabled:opacity-50"
+                >
+                  Reset Purse
+                </button>
+                <button
+                  type="submit"
+                  disabled={loading}
+                  className="flex-1 px-4 py-2 bg-yellow-500 hover:bg-yellow-600 text-black font-medium rounded-lg transition-colors disabled:opacity-50"
+                >
+                  {loading ? 'Updating...' : 'Update Team'}
+                </button>
+              </div>
+            </form>
+          ) : (
+            <div className="p-6 space-y-6">
+              {/* Current Team Players */}
+              <div>
+                <h3 className="text-lg font-semibold text-gray-900 mb-4">Current Squad ({teamPlayers.length})</h3>
+                {teamPlayers.length === 0 ? (
+                  <div className="text-center py-8 text-gray-500">
+                    <Users className="h-12 w-12 mx-auto mb-2 opacity-50" />
+                    <p>No players in squad</p>
+                  </div>
+                ) : (
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    {teamPlayers.map(player => (
+                      <div key={player.id} className="bg-gray-50 rounded-lg p-4 flex items-center justify-between">
+                        <div className="flex items-center space-x-3">
+                          <img src={player.photo_url} alt={player.name} className="w-12 h-12 rounded-full object-cover" />
+                          <div>
+                            <h4 className="font-medium text-gray-900">{player.name}</h4>
+                            <p className="text-sm text-gray-500">{player.role} • {player.country}</p>
+                            <p className="text-sm font-medium text-green-600">₹{player.current_price?.toLocaleString()}</p>
+                          </div>
+                        </div>
+                        <button
+                          onClick={() => removePlayerFromTeam(player)}
+                          disabled={loading}
+                          className="bg-red-500 hover:bg-red-600 text-white p-2 rounded-lg transition-colors disabled:opacity-50"
+                        >
+                          <Trash2 className="h-4 w-4" />
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+
+              {/* Add Players */}
+              <div className="border-t pt-6">
+                <h3 className="text-lg font-semibold text-gray-900 mb-4">Add Players</h3>
+                
+                <div className="relative mb-4">
+                  <Search className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
+                  <input
+                    type="text"
+                    placeholder="Search available players..."
+                    value={playerSearchTerm}
+                    onChange={(e) => setPlayerSearchTerm(e.target.value)}
+                    className="w-full pl-10 pr-4 py-2 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500 outline-none"
+                  />
+                </div>
+
+                <div className="max-h-64 overflow-y-auto space-y-2">
+                  {filteredAvailablePlayers.slice(0, 10).map(player => (
+                    <div key={player.id} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors">
+                      <div className="flex items-center space-x-3">
+                        <img src={player.photo_url} alt={player.name} className="w-10 h-10 rounded-full object-cover" />
+                        <div>
+                          <h4 className="font-medium text-gray-900">{player.name}</h4>
+                          <p className="text-sm text-gray-500">{player.role} • {player.country}</p>
+                          <p className="text-sm font-medium text-green-600">₹{player.base_price.toLocaleString()}</p>
+                        </div>
+                      </div>
+                      <button
+                        onClick={() => addPlayerToTeam(player)}
+                        disabled={loading || team.purse_remaining < player.base_price}
+                        className="bg-green-500 hover:bg-green-600 text-white px-3 py-1 rounded-lg transition-colors disabled:opacity-50 flex items-center space-x-1"
+                      >
+                        <Plus className="h-4 w-4" />
+                        <span>Add</span>
+                      </button>
+                    </div>
+                  ))}
+                  {filteredAvailablePlayers.length === 0 && playerSearchTerm && (
+                    <div className="text-center py-4 text-gray-500">
+                      No available players found matching "{playerSearchTerm}"
+                    </div>
+                  )}
+                  {availablePlayers.length === 0 && (
+                    <div className="text-center py-4 text-gray-500">
+                      No players available for purchase
+                    </div>
+                  )}
+                </div>
+              </div>
+            </div>
+          )}
+        </div>
       </div>
     </div>
   );

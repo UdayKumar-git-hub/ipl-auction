@@ -206,6 +206,33 @@ export function TeamDashboard() {
                 <p className="text-sm opacity-80">Current Bid</p>
                 <p className="text-2xl font-bold">₹{currentBid.toLocaleString()}</p>
               </div>
+              <div className="bg-white/20 rounded-lg p-3">
+                <p className="text-sm opacity-80 mb-2">Career Stats</p>
+                <div className="grid grid-cols-2 gap-2 text-sm">
+                  <div>
+                    <span className="opacity-80">Matches:</span>
+                    <span className="font-medium ml-1">{currentAuctionPlayer.stats.matches}</span>
+                  </div>
+                  {currentAuctionPlayer.stats.runs && (
+                    <div>
+                      <span className="opacity-80">Runs:</span>
+                      <span className="font-medium ml-1">{currentAuctionPlayer.stats.runs}</span>
+                    </div>
+                  )}
+                  {currentAuctionPlayer.stats.wickets && (
+                    <div>
+                      <span className="opacity-80">Wickets:</span>
+                      <span className="font-medium ml-1">{currentAuctionPlayer.stats.wickets}</span>
+                    </div>
+                  )}
+                  {currentAuctionPlayer.stats.average && (
+                    <div>
+                      <span className="opacity-80">Average:</span>
+                      <span className="font-medium ml-1">{currentAuctionPlayer.stats.average}</span>
+                    </div>
+                  )}
+                </div>
+              </div>
             </div>
           </div>
         </div>
