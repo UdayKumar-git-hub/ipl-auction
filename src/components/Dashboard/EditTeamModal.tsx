@@ -240,125 +240,227 @@ export function EditTeamModal({ team, onClose, onSuccess }: EditTeamModalProps) 
 
         <div className="overflow-y-auto" style={{ maxHeight: 'calc(90vh - 200px)' }}>
           {activeTab === 'details' ? (
-            )
-            }
             <form onSubmit={handleSubmit} className="p-6 space-y-6">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Team Name
-              </label>
-              <input
-                type="text"
-                value={formData.name}
-                onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                className="w-full px-4 py-2 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500 outline-none"
-                required
-              />
-            </div>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Team Name
+                  </label>
+                  <input
+                    type="text"
+                    value={formData.name}
+                    onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                    className="w-full px-4 py-2 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500 outline-none"
+                    required
+                  />
+                </div>
 
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Short Name
-              </label>
-              <input
-                type="text"
-                value={formData.short_name}
-                onChange={(e) => setFormData({ ...formData, short_name: e.target.value })}
-                className="w-full px-4 py-2 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500 outline-none"
-                required
-              />
-            </div>
-          </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Short Name
+                  </label>
+                  <input
+                    type="text"
+                    value={formData.short_name}
+                    onChange={(e) => setFormData({ ...formData, short_name: e.target.value })}
+                    className="w-full px-4 py-2 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500 outline-none"
+                    required
+                  />
+                </div>
+              </div>
 
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              Logo URL
-            </label>
-            <input
-              type="url"
-              value={formData.logo_url}
-              onChange={(e) => setFormData({ ...formData, logo_url: e.target.value })}
-              className="w-full px-4 py-2 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500 outline-none"
-            />
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Purse Remaining (₹)
-              </label>
-              <div className="relative">
-                <DollarSign className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Logo URL
+                </label>
                 <input
-                  type="number"
-                  value={formData.purse_remaining}
-                  onChange={(e) => setFormData({ ...formData, purse_remaining: e.target.value })}
-                  className="w-full pl-10 pr-4 py-2 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500 outline-none"
-                  required
+                  type="url"
+                  value={formData.logo_url}
+                  onChange={(e) => setFormData({ ...formData, logo_url: e.target.value })}
+                  className="w-full px-4 py-2 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500 outline-none"
                 />
               </div>
-            </div>
 
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Total Purse (₹)
-              </label>
-              <div className="relative">
-                <DollarSign className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
-                <input
-                  type="number"
-                  value={formData.total_purse}
-                  onChange={(e) => setFormData({ ...formData, total_purse: e.target.value })}
-                  className="w-full pl-10 pr-4 py-2 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500 outline-none"
-                  required
-                />
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Purse Remaining (₹)
+                  </label>
+                  <div className="relative">
+                    <DollarSign className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
+                    <input
+                      type="number"
+                      value={formData.purse_remaining}
+                      onChange={(e) => setFormData({ ...formData, purse_remaining: e.target.value })}
+                      className="w-full pl-10 pr-4 py-2 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500 outline-none"
+                      required
+                    />
+                  </div>
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Total Purse (₹)
+                  </label>
+                  <div className="relative">
+                    <DollarSign className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
+                    <input
+                      type="number"
+                      value={formData.total_purse}
+                      onChange={(e) => setFormData({ ...formData, total_purse: e.target.value })}
+                      className="w-full pl-10 pr-4 py-2 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500 outline-none"
+                      required
+                    />
+                  </div>
+                </div>
               </div>
-            </div>
-          </div>
 
-          <div className="bg-gray-50 rounded-lg p-4">
-            <h3 className="text-lg font-semibold text-gray-900 mb-2 flex items-center">
-              <Trophy className="h-5 w-5 mr-2" />
-              Team Statistics
-            </h3>
-            <div className="grid grid-cols-2 gap-4 text-sm">
+              <div className="bg-gray-50 rounded-lg p-4">
+                <h3 className="text-lg font-semibold text-gray-900 mb-2 flex items-center">
+                  <Trophy className="h-5 w-5 mr-2" />
+                  Team Statistics
+                </h3>
+                <div className="grid grid-cols-2 gap-4 text-sm">
+                  <div>
+                    <span className="text-gray-500">Players Count:</span>
+                    <span className="font-medium ml-2">{team.players_count}</span>
+                  </div>
+                  <div>
+                    <span className="text-gray-500">Purse Used:</span>
+                    <span className="font-medium ml-2">₹{((team.total_purse - team.purse_remaining) / 10000000).toFixed(1)}Cr</span>
+                  </div>
+                </div>
+              </div>
+
+              <div className="flex space-x-4 pt-6 border-t">
+                <button
+                  type="button"
+                  onClick={onClose}
+                  className="flex-1 px-4 py-2 border-2 border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="button"
+                  onClick={resetPurse}
+                  disabled={loading}
+                  className="flex-1 px-4 py-2 bg-red-500 hover:bg-red-600 text-white font-medium rounded-lg transition-colors disabled:opacity-50"
+                >
+                  Reset Purse
+                </button>
+                <button
+                  type="submit"
+                  disabled={loading}
+                  className="flex-1 px-4 py-2 bg-yellow-500 hover:bg-yellow-600 text-black font-medium rounded-lg transition-colors disabled:opacity-50"
+                >
+                  {loading ? 'Updating...' : 'Update Team'}
+                </button>
+              </div>
+            </form>
+          ) : (
+            <div className="p-6 space-y-6">
+              {/* Current Squad */}
               <div>
-                <span className="text-gray-500">Players Count:</span>
-                <span className="font-medium ml-2">{team.players_count}</span>
+                <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center">
+                  <Users className="h-5 w-5 mr-2" />
+                  Current Squad ({teamPlayers.length} players)
+                </h3>
+                {teamPlayers.length > 0 ? (
+                  <div className="grid gap-3">
+                    {teamPlayers.map((player) => (
+                      <div key={player.id} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                        <div className="flex items-center space-x-3">
+                          <img
+                            src={player.photo_url || 'https://images.pexels.com/photos/163452/basketball-dunk-blue-game-163452.jpeg?auto=compress&cs=tinysrgb&w=100&h=100&fit=crop'}
+                            alt={player.name}
+                            className="w-10 h-10 rounded-full object-cover"
+                          />
+                          <div>
+                            <p className="font-medium text-gray-900">{player.name}</p>
+                            <p className="text-sm text-gray-500">{player.role} • {player.country}</p>
+                          </div>
+                        </div>
+                        <div className="flex items-center space-x-3">
+                          <span className="text-sm font-medium text-green-600">
+                            ₹{((player.current_price || player.base_price) / 10000000).toFixed(1)}Cr
+                          </span>
+                          <button
+                            onClick={() => removePlayerFromTeam(player)}
+                            disabled={loading}
+                            className="p-1 text-red-500 hover:text-red-700 transition-colors disabled:opacity-50"
+                          >
+                            <Trash2 className="h-4 w-4" />
+                          </button>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <p className="text-gray-500 text-center py-8">No players in squad</p>
+                )}
               </div>
+
+              {/* Add Players */}
               <div>
-                <span className="text-gray-500">Purse Used:</span>
-                <span className="font-medium ml-2">₹{((team.total_purse - team.purse_remaining) / 10000000).toFixed(1)}Cr</span>
+                <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center">
+                  <Plus className="h-5 w-5 mr-2" />
+                  Add Players
+                </h3>
+                
+                {/* Search */}
+                <div className="relative mb-4">
+                  <Search className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
+                  <input
+                    type="text"
+                    placeholder="Search players by name, role, or country..."
+                    value={playerSearchTerm}
+                    onChange={(e) => setPlayerSearchTerm(e.target.value)}
+                    className="w-full pl-10 pr-4 py-2 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500 outline-none"
+                  />
+                </div>
+
+                {/* Available Players */}
+                <div className="max-h-64 overflow-y-auto">
+                  {filteredAvailablePlayers.length > 0 ? (
+                    <div className="grid gap-3">
+                      {filteredAvailablePlayers.map((player) => (
+                        <div key={player.id} className="flex items-center justify-between p-3 bg-white border rounded-lg">
+                          <div className="flex items-center space-x-3">
+                            <img
+                              src={player.photo_url || 'https://images.pexels.com/photos/163452/basketball-dunk-blue-game-163452.jpeg?auto=compress&cs=tinysrgb&w=100&h=100&fit=crop'}
+                              alt={player.name}
+                              className="w-10 h-10 rounded-full object-cover"
+                            />
+                            <div>
+                              <p className="font-medium text-gray-900">{player.name}</p>
+                              <p className="text-sm text-gray-500">{player.role} • {player.country}</p>
+                            </div>
+                          </div>
+                          <div className="flex items-center space-x-3">
+                            <span className="text-sm font-medium text-blue-600">
+                              ₹{(player.base_price / 10000000).toFixed(1)}Cr
+                            </span>
+                            <button
+                              onClick={() => addPlayerToTeam(player)}
+                              disabled={loading || team.purse_remaining < player.base_price}
+                              className="px-3 py-1 bg-yellow-500 hover:bg-yellow-600 text-black text-sm font-medium rounded transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                            >
+                              Add
+                            </button>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  ) : (
+                    <p className="text-gray-500 text-center py-8">
+                      {playerSearchTerm ? 'No players found matching your search' : 'No available players'}
+                    </p>
+                  )}
+                </div>
               </div>
             </div>
-          </div>
-
-          <div className="flex space-x-4 pt-6 border-t">
-            <button
-              type="button"
-              onClick={onClose}
-              className="flex-1 px-4 py-2 border-2 border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors"
-            >
-              Cancel
-            </button>
-            <button
-              type="button"
-              onClick={resetPurse}
-              disabled={loading}
-              className="flex-1 px-4 py-2 bg-red-500 hover:bg-red-600 text-white font-medium rounded-lg transition-colors disabled:opacity-50"
-            >
-              Reset Purse
-            </button>
-            <button
-              type="submit"
-              disabled={loading}
-              className="flex-1 px-4 py-2 bg-yellow-500 hover:bg-yellow-600 text-black font-medium rounded-lg transition-colors disabled:opacity-50"
-            >
-              {loading ? 'Updating...' : 'Update Team'}
-            </button>
-          </div>
-        </form>
+          )}
+        </div>
       </div>
     </div>
   );
