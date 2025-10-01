@@ -77,9 +77,9 @@ export function TeamDashboard() {
           )
         `)
         .eq('is_active', true)
-        .single();
+        .maybeSingle();
 
-      if (auctionError && auctionError.code !== 'PGRST116') {
+      if (auctionError) {
         console.error('Current auction fetch error:', auctionError);
         return;
       }
