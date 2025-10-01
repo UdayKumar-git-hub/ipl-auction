@@ -240,6 +240,8 @@ export function EditTeamModal({ team, onClose, onSuccess }: EditTeamModalProps) 
 
         <div className="overflow-y-auto" style={{ maxHeight: 'calc(90vh - 200px)' }}>
           {activeTab === 'details' ? (
+            )
+            }
             <form onSubmit={handleSubmit} className="p-6 space-y-6">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div>
@@ -332,117 +334,31 @@ export function EditTeamModal({ team, onClose, onSuccess }: EditTeamModalProps) 
             </div>
           </div>
 
-              <div className="flex space-x-4 pt-6 border-t">
-                <button
-                  type="button"
-                  onClick={onClose}
-                  className="flex-1 px-4 py-2 border-2 border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors"
-                >
-                  Cancel
-                </button>
-                <button
-                  type="button"
-                  onClick={resetPurse}
-                  disabled={loading}
-                  className="flex-1 px-4 py-2 bg-red-500 hover:bg-red-600 text-white font-medium rounded-lg transition-colors disabled:opacity-50"
-                >
-                  Reset Purse
-                </button>
-                <button
-                  type="submit"
-                  disabled={loading}
-                  className="flex-1 px-4 py-2 bg-yellow-500 hover:bg-yellow-600 text-black font-medium rounded-lg transition-colors disabled:opacity-50"
-                >
-                  {loading ? 'Updating...' : 'Update Team'}
-                </button>
-              </div>
-            </form>
-          ) : (
-            <div className="p-6 space-y-6">
-              {/* Current Team Players */}
-              <div>
-                <h3 className="text-lg font-semibold text-gray-900 mb-4">Current Squad ({teamPlayers.length})</h3>
-                {teamPlayers.length === 0 ? (
-                  <div className="text-center py-8 text-gray-500">
-                    <Users className="h-12 w-12 mx-auto mb-2 opacity-50" />
-                    <p>No players in squad</p>
-                  </div>
-                ) : (
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    {teamPlayers.map(player => (
-                      <div key={player.id} className="bg-gray-50 rounded-lg p-4 flex items-center justify-between">
-                        <div className="flex items-center space-x-3">
-                          <img src={player.photo_url} alt={player.name} className="w-12 h-12 rounded-full object-cover" />
-                          <div>
-                            <h4 className="font-medium text-gray-900">{player.name}</h4>
-                            <p className="text-sm text-gray-500">{player.role} • {player.country}</p>
-                            <p className="text-sm font-medium text-green-600">₹{player.current_price?.toLocaleString()}</p>
-                          </div>
-                        </div>
-                        <button
-                          onClick={() => removePlayerFromTeam(player)}
-                          disabled={loading}
-                          className="bg-red-500 hover:bg-red-600 text-white p-2 rounded-lg transition-colors disabled:opacity-50"
-                        >
-                          <Trash2 className="h-4 w-4" />
-                        </button>
-                      </div>
-                    ))}
-                  </div>
-                )}
-              </div>
-
-              {/* Add Players */}
-              <div className="border-t pt-6">
-                <h3 className="text-lg font-semibold text-gray-900 mb-4">Add Players</h3>
-                
-                <div className="relative mb-4">
-                  <Search className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
-                  <input
-                    type="text"
-                    placeholder="Search available players..."
-                    value={playerSearchTerm}
-                    onChange={(e) => setPlayerSearchTerm(e.target.value)}
-                    className="w-full pl-10 pr-4 py-2 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500 outline-none"
-                  />
-                </div>
-
-                <div className="max-h-64 overflow-y-auto space-y-2">
-                  {filteredAvailablePlayers.slice(0, 10).map(player => (
-                    <div key={player.id} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors">
-                      <div className="flex items-center space-x-3">
-                        <img src={player.photo_url} alt={player.name} className="w-10 h-10 rounded-full object-cover" />
-                        <div>
-                          <h4 className="font-medium text-gray-900">{player.name}</h4>
-                          <p className="text-sm text-gray-500">{player.role} • {player.country}</p>
-                          <p className="text-sm font-medium text-green-600">₹{player.base_price.toLocaleString()}</p>
-                        </div>
-                      </div>
-                      <button
-                        onClick={() => addPlayerToTeam(player)}
-                        disabled={loading || team.purse_remaining < player.base_price}
-                        className="bg-green-500 hover:bg-green-600 text-white px-3 py-1 rounded-lg transition-colors disabled:opacity-50 flex items-center space-x-1"
-                      >
-                        <Plus className="h-4 w-4" />
-                        <span>Add</span>
-                      </button>
-                    </div>
-                  ))}
-                  {filteredAvailablePlayers.length === 0 && playerSearchTerm && (
-                    <div className="text-center py-4 text-gray-500">
-                      No available players found matching "{playerSearchTerm}"
-                    </div>
-                  )}
-                  {availablePlayers.length === 0 && (
-                    <div className="text-center py-4 text-gray-500">
-                      No players available for purchase
-                    </div>
-                  )}
-                </div>
-              </div>
-            </div>
-          )}
-        </div>
+          <div className="flex space-x-4 pt-6 border-t">
+            <button
+              type="button"
+              onClick={onClose}
+              className="flex-1 px-4 py-2 border-2 border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors"
+            >
+              Cancel
+            </button>
+            <button
+              type="button"
+              onClick={resetPurse}
+              disabled={loading}
+              className="flex-1 px-4 py-2 bg-red-500 hover:bg-red-600 text-white font-medium rounded-lg transition-colors disabled:opacity-50"
+            >
+              Reset Purse
+            </button>
+            <button
+              type="submit"
+              disabled={loading}
+              className="flex-1 px-4 py-2 bg-yellow-500 hover:bg-yellow-600 text-black font-medium rounded-lg transition-colors disabled:opacity-50"
+            >
+              {loading ? 'Updating...' : 'Update Team'}
+            </button>
+          </div>
+        </form>
       </div>
     </div>
   );
