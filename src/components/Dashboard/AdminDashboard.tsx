@@ -18,6 +18,8 @@ export function AdminDashboard() {
   const [showAddPlayer, setShowAddPlayer] = useState(false);
   const [showEditTeam, setShowEditTeam] = useState(false);
   const [selectedTeam, setSelectedTeam] = useState<Team | null>(null);
+  const [showPlayerSearch, setShowPlayerSearch] = useState(false);
+  const [playerSearchTerm, setPlayerSearchTerm] = useState('');
   
   // Auction state
   const [currentAuctionPlayer, setCurrentAuctionPlayer] = useState<Player | null>(null);
@@ -68,9 +70,9 @@ export function AdminDashboard() {
           )
         `)
         .eq('is_active', true)
-        .single();
+        .maybeSingle();
 
-      if (error && error.code !== 'PGRST116') {
+      if (error) {
         console.error('Current auction fetch error:', error);
         return;
       }
