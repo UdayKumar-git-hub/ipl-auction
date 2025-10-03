@@ -3,6 +3,7 @@ import { Edit, Trash2, User, MapPin, DollarSign } from 'lucide-react';
 import { Player } from '../../types';
 import { supabase } from '../../lib/supabase';
 import toast from 'react-hot-toast';
+import { EditPlayerModal } from './EditPlayerModal';
 
 interface PlayerCardProps {
   player: Player;
@@ -11,6 +12,7 @@ interface PlayerCardProps {
 
 export function PlayerCard({ player, onUpdate }: PlayerCardProps) {
   const [loading, setLoading] = useState(false);
+  const [showEditModal, setShowEditModal] = useState(false);
 
   const handleDelete = async () => {
     if (!confirm('Are you sure you want to delete this player?')) return;
@@ -114,7 +116,10 @@ export function PlayerCard({ player, onUpdate }: PlayerCardProps) {
         </div>
 
         <div className="flex space-x-2">
-          <button className="flex-1 flex items-center justify-center space-x-1 bg-yellow-500 hover:bg-yellow-600 text-black font-medium px-3 py-2 rounded-lg transition-colors">
+          <button
+            onClick={() => setShowEditModal(true)}
+            className="flex-1 flex items-center justify-center space-x-1 bg-yellow-500 hover:bg-yellow-600 text-black font-medium px-3 py-2 rounded-lg transition-colors"
+          >
             <Edit className="h-4 w-4" />
             <span>Edit</span>
           </button>
@@ -128,6 +133,17 @@ export function PlayerCard({ player, onUpdate }: PlayerCardProps) {
           </button>
         </div>
       </div>
+
+      {showEditModal && (
+        <EditPlayerModal
+          player={player}
+          onClose={() => setShowEditModal(false)}
+          onSuccess={() => {
+            setShowEditModal(false);
+            onUpdate();
+          }}
+        />
+      )}
     </div>
   );
 }
