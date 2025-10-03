@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Edit, Trash2, User, MapPin, DollarSign } from 'lucide-react';
+import { CreditCard as Edit, Trash2, User, MapPin, DollarSign } from 'lucide-react';
 import { Player } from '../../types';
 import { supabase } from '../../lib/supabase';
 import toast from 'react-hot-toast';
