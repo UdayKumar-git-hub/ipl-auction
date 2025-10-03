@@ -1,16 +1,14 @@
 /*
   # Complete, Destructive, and Final IPL Auction Database Schema
-  # Version: 4.0 (Corrected & Verified with all players and policies)
+  # Version: 6.0 (Production Ready)
 
-  This script is destructive and will REBUILD your database from scratch.
-  This is the definitive script to ensure a clean, error-free setup with all players included.
+  This script is DESTRUCTIVE and will REBUILD your database from scratch.
+  This is the definitive script to ensure a clean, error-free, and efficient setup.
 
-  - Drops all existing tables and functions to prevent conflicts.
-  - Creates all necessary tables with correct constraints.
-  - Implements and correctly configures Row Level Security (RLS) idempotently.
-  - Creates the `sell_player` stored procedure with guards for atomic transactions.
-  - Populates the database with ALL 141+ players from your three CSV files.
-  - Sets up demo user accounts for the admin and each team.
+  Key Improvements in this Version:
+  - REMOVED the redundant `current_auction` table for a simplified, more robust single-table auction model.
+  - FIXED the `sell_player` function to be fully atomic, now correctly updating the `auctions` table.
+  - CLEANED player seed data to remove duplicates (Riyan Parag, James Faulkner).
 */
 
 -- Ensure pgcrypto for gen_random_uuid()
@@ -19,8 +17,10 @@ CREATE EXTENSION IF NOT EXISTS "pgcrypto";
 -- ----------------------------------------
 -- DESTRUCTION (Ensures a Clean Slate)
 -- ----------------------------------------
-DROP FUNCTION IF EXISTS sell_player(uuid, uuid, bigint) CASCADE;
-DROP TABLE IF EXISTS public.current_auction CASCADE;
+-- Drop function first to remove dependencies
+DROP FUNCTION IF EXISTS sell_player(uuid, uuid, uuid, bigint) CASCADE;
+
+-- Drop tables in reverse order of creation
 DROP TABLE IF EXISTS public.auctions CASCADE;
 DROP TABLE IF EXISTS public.players CASCADE;
 DROP TABLE IF EXISTS public.teams CASCADE;
@@ -52,19 +52,17 @@ CREATE TABLE public.teams (
 
 CREATE TABLE public.players (
   id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
-  name text NOT NULL,
+  name text NOT NULL UNIQUE,
   role text NOT NULL CHECK (role IN ('Batsman', 'Bowler', 'All-Rounder', 'Wicketkeeper')),
   country text NOT NULL,
   base_price bigint NOT NULL,
   current_price bigint,
   photo_url text DEFAULT 'https://i.imgur.com/S21eL5A.png',
-  stats jsonb DEFAULT '{"matches": 0, "runs": 0, "wickets": 0, "average": 0}',
+  stats jsonb DEFAULT '{}',
   team_id uuid REFERENCES public.teams(id),
   is_sold boolean DEFAULT false,
   created_at timestamptz DEFAULT now()
 );
-
-ALTER TABLE public.players ADD CONSTRAINT players_name_key UNIQUE (name);
 
 CREATE TABLE public.auctions (
   id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
@@ -76,19 +74,12 @@ CREATE TABLE public.auctions (
   updated_at timestamptz DEFAULT now()
 );
 
-CREATE TABLE public.current_auction (
-  id INT PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
-  player_id uuid REFERENCES public.players(id),
-  current_price bigint DEFAULT 0,
-  is_active boolean DEFAULT false,
-  updated_at timestamptz DEFAULT now()
-);
-
 -- ----------------------------------------
 -- INDEXES (for Performance)
 -- ----------------------------------------
 CREATE INDEX IF NOT EXISTS idx_players_team_id ON public.players (team_id);
 CREATE INDEX IF NOT EXISTS idx_auctions_player_id ON public.auctions (player_id);
+CREATE INDEX IF NOT EXISTS idx_auctions_is_active ON public.auctions (is_active); -- Important for finding the live auction
 CREATE INDEX IF NOT EXISTS idx_user_profiles_role ON public.user_profiles (role);
 
 
@@ -99,70 +90,76 @@ ALTER TABLE public.user_profiles ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.teams ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.players ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.auctions ENABLE ROW LEVEL SECURITY;
-ALTER TABLE public.current_auction ENABLE ROW LEVEL SECURITY;
 
 -- Policies for user_profiles
-DROP POLICY IF EXISTS "Users can read own profile" ON public.user_profiles;
-CREATE POLICY "Users can read own profile" ON public.user_profiles FOR SELECT TO authenticated USING (auth.uid() = id);
+DROP POLICY IF EXISTS "Users can read their own profile" ON public.user_profiles;
+CREATE POLICY "Users can read their own profile" ON public.user_profiles FOR SELECT TO authenticated USING (auth.uid() = id);
 
 -- Policies for teams
-DROP POLICY IF EXISTS "Teams are readable by authenticated users" ON public.teams;
-CREATE POLICY "Teams are readable by authenticated users" ON public.teams FOR SELECT TO authenticated USING (true);
-DROP POLICY IF EXISTS "Teams are manageable by admins" ON public.teams;
-CREATE POLICY "Teams are manageable by admins" ON public.teams FOR ALL TO authenticated USING (EXISTS (SELECT 1 FROM public.user_profiles WHERE id = auth.uid() AND role = 'admin'));
+DROP POLICY IF EXISTS "Authenticated users can read team data" ON public.teams;
+CREATE POLICY "Authenticated users can read team data" ON public.teams FOR SELECT TO authenticated USING (true);
+DROP POLICY IF EXISTS "Admins can manage teams" ON public.teams;
+CREATE POLICY "Admins can manage teams" ON public.teams FOR ALL TO authenticated USING (EXISTS (SELECT 1 FROM public.user_profiles WHERE id = auth.uid() AND role = 'admin'));
 
 -- Policies for players
-DROP POLICY IF EXISTS "Players are readable by authenticated users" ON public.players;
-CREATE POLICY "Players are readable by authenticated users" ON public.players FOR SELECT TO authenticated USING (true);
-DROP POLICY IF EXISTS "Players are manageable by admins" ON public.players;
-CREATE POLICY "Players are manageable by admins" ON public.players FOR ALL TO authenticated USING (EXISTS (SELECT 1 FROM public.user_profiles WHERE id = auth.uid() AND role = 'admin'));
+DROP POLICY IF EXISTS "Authenticated users can read player data" ON public.players;
+CREATE POLICY "Authenticated users can read player data" ON public.players FOR SELECT TO authenticated USING (true);
+DROP POLICY IF EXISTS "Admins can manage players" ON public.players;
+CREATE POLICY "Admins can manage players" ON public.players FOR ALL TO authenticated USING (EXISTS (SELECT 1 FROM public.user_profiles WHERE id = auth.uid() AND role = 'admin'));
 
 -- Policies for auctions
-DROP POLICY IF EXISTS "Auctions are readable by authenticated users" ON public.auctions;
-CREATE POLICY "Auctions are readable by authenticated users" ON public.auctions FOR SELECT TO authenticated USING (true);
-DROP POLICY IF EXISTS "Auctions are manageable by admins" ON public.auctions;
-CREATE POLICY "Auctions are manageable by admins" ON public.auctions FOR ALL TO authenticated USING (EXISTS (SELECT 1 FROM public.user_profiles WHERE id = auth.uid() AND role = 'admin'));
-
--- Policies for current_auction
-DROP POLICY IF EXISTS "Current auction is readable by authenticated users" ON public.current_auction;
-CREATE POLICY "Current auction is readable by authenticated users" ON public.current_auction FOR SELECT TO authenticated USING (true);
-DROP POLICY IF EXISTS "Current auction is manageable by admins" ON public.current_auction;
-CREATE POLICY "Current auction is manageable by admins" ON public.current_auction FOR ALL TO authenticated USING (EXISTS (SELECT 1 FROM public.user_profiles WHERE id = auth.uid() AND role = 'admin'));
+DROP POLICY IF EXISTS "Authenticated users can read auction data" ON public.auctions;
+CREATE POLICY "Authenticated users can read auction data" ON public.auctions FOR SELECT TO authenticated USING (true);
+DROP POLICY IF EXISTS "Admins can manage auctions" ON public.auctions;
+CREATE POLICY "Admins can manage auctions" ON public.auctions FOR ALL TO authenticated USING (EXISTS (SELECT 1 FROM public.user_profiles WHERE id = auth.uid() AND role = 'admin'));
 
 
 -- ----------------------------------------
--- DATABASE FUNCTION FOR ATOMIC TRANSACTION
+-- DATABASE FUNCTION FOR ATOMIC TRANSACTION (CORRECTED)
 -- ----------------------------------------
-CREATE OR REPLACE FUNCTION sell_player(player_id_to_sell uuid, team_id_winner uuid, sell_price bigint)
+CREATE OR REPLACE FUNCTION sell_player(
+    p_id uuid, -- player_id
+    t_id uuid, -- team_id
+    a_id uuid, -- auction_id
+    sell_price bigint
+)
 RETURNS void
 LANGUAGE plpgsql
+-- SECURITY DEFINER allows this function to run with the permissions of the user who defined it, bypassing RLS for the transaction.
 SECURITY DEFINER AS $$
 DECLARE
   current_purse bigint;
   already_sold boolean;
 BEGIN
-  -- Lock the player row to prevent race conditions
-  SELECT is_sold INTO already_sold FROM public.players WHERE id = player_id_to_sell FOR UPDATE;
+  -- Lock the player row to prevent race conditions (another admin selling the same player)
+  SELECT is_sold INTO already_sold FROM public.players WHERE id = p_id FOR UPDATE;
   IF already_sold THEN
-    RAISE EXCEPTION 'Player has already been sold: %', player_id_to_sell;
+    RAISE EXCEPTION 'Player has already been sold.';
   END IF;
 
-  -- Lock the team row and check funds
-  SELECT purse_remaining INTO current_purse FROM public.teams WHERE id = team_id_winner FOR UPDATE;
+  -- Lock the team row to prevent race conditions and check for sufficient funds
+  SELECT purse_remaining INTO current_purse FROM public.teams WHERE id = t_id FOR UPDATE;
   IF current_purse < sell_price THEN
-    RAISE EXCEPTION 'Insufficient purse for team %', team_id_winner;
+    RAISE EXCEPTION 'Insufficient purse for the team.';
   END IF;
 
-  -- Perform the updates
+  -- 1. UPDATE THE PLAYER: Mark as sold and assign to the winning team.
   UPDATE public.players
-  SET is_sold = true, team_id = team_id_winner, current_price = sell_price
-  WHERE id = player_id_to_sell;
+  SET is_sold = true, team_id = t_id, current_price = sell_price
+  WHERE id = p_id;
 
+  -- 2. UPDATE THE TEAM: Deduct from purse and increment player count.
   UPDATE public.teams
   SET purse_remaining = purse_remaining - sell_price, players_count = players_count + 1
-  WHERE id = team_id_winner;
+  WHERE id = t_id;
+
+  -- 3. UPDATE THE AUCTION (CRITICAL FIX): Mark the auction as inactive and record the winner.
+  UPDATE public.auctions
+  SET is_active = false, winning_team_id = t_id, current_price = sell_price
+  WHERE id = a_id;
 END;
 $$;
+
 
 -- ----------------------------------------
 -- SEED DATA
@@ -174,7 +171,7 @@ INSERT INTO public.teams (name, short_name) VALUES
 ON CONFLICT (name) DO NOTHING;
 
 INSERT INTO public.players (name, role, country, base_price, stats) VALUES
--- Batsmen & Wicketkeepers (60 players)
+-- Batsmen & Wicketkeepers (Corrected Count: 59)
 ('Virat Kohli', 'Batsman', 'India', 20000000, '{"matches": 254, "runs": 8094, "average": 38.91, "strike_rate": 132.02, "high_score": 113, "100s": 8, "50s": 56, "4s": 711, "6s": 276, "rating": 9.0}'),
 ('Rohit Sharma', 'Batsman', 'India', 16000000, '{"matches": 260, "runs": 6649, "average": 29.42, "strike_rate": 131.04, "high_score": 109, "100s": 2, "50s": 43, "4s": 601, "6s": 281, "rating": 7.4}'),
 ('MS Dhoni', 'Wicketkeeper', 'India', 12000000, '{"matches": 267, "runs": 5289, "average": 39.18, "strike_rate": 137.7, "high_score": 84, "100s": 0, "50s": 24, "4s": 361, "6s": 252, "rating": 8.1}'),
@@ -203,7 +200,6 @@ INSERT INTO public.players (name, role, country, base_price, stats) VALUES
 ('Ambati Rayudu', 'Batsman', 'India', 6750000, '{"matches": 204, "runs": 4348, "average": 28.23, "strike_rate": 127.54, "high_score": 100, "100s": 1, "50s": 22, "4s": 361, "6s": 171, "rating": 6.7}'),
 ('Manish Pandey', 'Batsman', 'India', 4600000, '{"matches": 171, "runs": 3808, "average": 29.07, "strike_rate": 120.97, "high_score": 114, "100s": 1, "50s": 22, "4s": 320, "6s": 106, "rating": 6.5}'),
 ('Shimron Hetmyer', 'Batsman', 'West Indies', 8500000, '{"matches": 70, "runs": 1139, "average": 30.78, "strike_rate": 153.92, "high_score": 75, "100s": 0, "50s": 4, "4s": 71, "6s": 76, "rating": 7.0}'),
-('Riyan Parag', 'Batsman', 'India', 3800000, '{"matches": 68, "runs": 727, "average": 16.91, "strike_rate": 127.77, "high_score": 56, "100s": 0, "50s": 3, "4s": 58, "6s": 31, "rating": 3.7}'),
 ('Abhinav Manohar', 'Batsman', 'India', 2600000, '{"matches": 17, "runs": 222, "average": 18.5, "strike_rate": 136.2, "high_score": 42, "100s": 0, "50s": 0, "4s": 15, "6s": 13, "rating": 4.1}'),
 ('Shahrukh Khan', 'Batsman', 'India', 9000000, '{"matches": 43, "runs": 426, "average": 20.29, "strike_rate": 134.81, "high_score": 47, "100s": 0, "50s": 0, "4s": 27, "6s": 28, "rating": 4.9}'),
 ('Priyam Garg', 'Batsman', 'India', 2000000, '{"matches": 23, "runs": 251, "average": 15.69, "strike_rate": 115.67, "high_score": 51, "100s": 0, "50s": 1, "4s": 21, "6s": 8, "rating": 3.0}'),
@@ -220,7 +216,6 @@ INSERT INTO public.players (name, role, country, base_price, stats) VALUES
 ('Rishabh Pant', 'Wicketkeeper', 'India', 16000000, '{"matches": 112, "runs": 3284, "average": 35.31, "strike_rate": 148.64, "high_score": 128, "100s": 1, "50s": 18, "4s": 286, "6s": 140, "rating": 7.9}'),
 ('Suryakumar Yadav', 'Batsman', 'India', 8000000, '{"matches": 153, "runs": 3600, "average": 31.86, "strike_rate": 146.52, "high_score": 103, "100s": 2, "50s": 24, "4s": 361, "6s": 126, "rating": 7.8}'),
 ('Shreyas Iyer', 'Batsman', 'India', 12250000, '{"matches": 116, "runs": 3073, "average": 31.04, "strike_rate": 126.83, "high_score": 96, "100s": 0, "50s": 21, "4s": 266, "6s": 94, "rating": 7.4}'),
-('Venkatesh Iyer', 'All-Rounder', 'India', 8000000, '{"matches": 50, "runs": 956, "average": 23.32, "strike_rate": 131.14, "high_score": 104, "100s": 1, "50s": 7, "4s": 84, "6s": 41, "rating": 6.0}'),
 ('Prabhsimran Singh', 'Wicketkeeper', 'India', 600000, '{"matches": 20, "runs": 334, "average": 17.58, "strike_rate": 136.89, "high_score": 103, "100s": 1, "50s": 1, "4s": 35, "6s": 17, "rating": 4.5}'),
 ('Sai Sudharsan', 'Batsman', 'India', 200000, '{"matches": 21, "runs": 757, "average": 39.84, "strike_rate": 134.46, "high_score": 96, "100s": 0, "50s": 5, "4s": 71, "6s": 22, "rating": 7.0}'),
 ('Ruturaj Gaikwad', 'Batsman', 'India', 6000000, '{"matches": 63, "runs": 2307, "average": 41.2, "strike_rate": 136.21, "high_score": 101, "100s": 1, "50s": 18, "4s": 208, "6s": 85, "rating": 8.3}'),
@@ -276,7 +271,8 @@ INSERT INTO public.players (name, role, country, base_price, stats) VALUES
 ('Sandeep Sharma', 'Bowler', 'India', 500000, '{"matches": 122, "wickets": 132, "average": 27.23, "economy": 7.86, "strike_rate": 20.78, "4w": 2, "5w": 1, "rating": 7.4}'),
 ('Jayant Yadav', 'Bowler', 'India', 1700000, '{"matches": 20, "wickets": 8, "average": 54.75, "economy": 7.1, "strike_rate": 46.25, "4w": 0, "5w": 0, "rating": 2.5}'),
 
--- All-Rounders (38 players)
+-- All-Rounders (Corrected Count: 38)
+('Venkatesh Iyer', 'All-Rounder', 'India', 8000000, '{"matches": 50, "runs": 956, "average": 23.32, "strike_rate": 131.14, "high_score": 104, "100s": 1, "50s": 7, "4s": 84, "6s": 41, "rating": 6.0}'),
 ('Ravichandran Ashwin', 'All-Rounder', 'India', 5000000, '{"matches": 212, "runs": 745, "wickets": 180, "batting_rating": 3, "bowling_rating": 7, "overall_rating": 5.0}'),
 ('Sunil Narine', 'All-Rounder', 'West Indies', 6000000, '{"matches": 177, "runs": 1046, "wickets": 180, "batting_rating": 5, "bowling_rating": 9, "overall_rating": 7.0}'),
 ('Ravindra Jadeja', 'All-Rounder', 'India', 16000000, '{"matches": 240, "runs": 2942, "wickets": 159, "batting_rating": 5, "bowling_rating": 7, "overall_rating": 6.0}'),
@@ -298,7 +294,7 @@ INSERT INTO public.players (name, role, country, base_price, stats) VALUES
 ('Deepak Hooda', 'All-Rounder', 'India', 5750000, '{"matches": 116, "runs": 1399, "wickets": 10, "batting_rating": 4, "bowling_rating": 3, "overall_rating": 3.5}'),
 ('Washington Sundar', 'All-Rounder', 'India', 8750000, '{"matches": 58, "runs": 378, "wickets": 36, "batting_rating": 3, "bowling_rating": 5, "overall_rating": 4.0}'),
 ('Vijay Shankar', 'All-Rounder', 'India', 1400000, '{"matches": 65, "runs": 1032, "wickets": 9, "batting_rating": 4, "bowling_rating": 3, "overall_rating": 3.5}'),
-('Riyan Parag (All-Rounder)', 'All-Rounder', 'India', 3800000, '{"matches": 68, "runs": 727, "wickets": 4, "batting_rating": 3, "bowling_rating": 3, "overall_rating": 3.0}'),
+('Riyan Parag', 'All-Rounder', 'India', 3800000, '{"matches": 68, "runs": 727, "wickets": 4, "batting_rating": 3, "bowling_rating": 3, "overall_rating": 3.0}'),
 ('Liam Livingstone', 'All-Rounder', 'England', 11500000, '{"matches": 42, "runs": 828, "wickets": 8, "batting_rating": 5, "bowling_rating": 3, "overall_rating": 4.0}'),
 ('Odean Smith', 'All-Rounder', 'West Indies', 6000000, '{"matches": 19, "runs": 143, "wickets": 7, "batting_rating": 3, "bowling_rating": 3, "overall_rating": 3.0}'),
 ('Romario Shepherd', 'All-Rounder', 'West Indies', 7750000, '{"matches": 7, "runs": 58, "wickets": 3, "batting_rating": 3, "bowling_rating": 3, "overall_rating": 3.0}'),
@@ -313,11 +309,12 @@ INSERT INTO public.players (name, role, country, base_price, stats) VALUES
 ('Andrew Symonds', 'All-Rounder', 'Australia', 2000000, '{"matches": 39, "runs": 974, "wickets": 20, "batting_rating": 5, "bowling_rating": 4, "overall_rating": 4.5}'),
 ('Stuart Binny', 'All-Rounder', 'India', 2000000, '{"matches": 95, "runs": 880, "wickets": 22, "batting_rating": 3, "bowling_rating": 4, "overall_rating": 3.5}'),
 ('James Faulkner', 'All-Rounder', 'Australia', 2000000, '{"matches": 60, "runs": 527, "wickets": 59, "batting_rating": 4, "bowling_rating": 6, "overall_rating": 5.0}'),
-('Chris Woakes', 'All-Rounder', 'England', 1500000, '{"matches": 21, "runs": 78, "wickets": 30, "batting_rating": 2, "bowling_rating": 6, "overall_rating": 4.0}'),
-('JP Faulkner', 'All-Rounder', 'Australia', 2000000, '{"matches": 60, "runs": 527, "wickets": 59, "batting_rating": 4, "bowling_rating": 6, "overall_rating": 5.0}')
+('Chris Woakes', 'All-Rounder', 'England', 1500000, '{"matches": 21, "runs": 78, "wickets": 30, "batting_rating": 2, "bowling_rating": 6, "overall_rating": 4.0}')
 ON CONFLICT (name) DO NOTHING;
 
--- Insert demo user profiles
+-- ----------------------------------------
+-- DEMO USER DATA
+-- ----------------------------------------
 INSERT INTO public.user_profiles (id, email, role, team_name) VALUES
 ('11111111-1111-1111-1111-111111111111', 'admin@ipl.com', 'admin', NULL),
 ('22222222-2222-2222-2222-222222222222', 'csk@ipl.com', 'team', 'Chennai Super Kings'),
@@ -331,7 +328,3 @@ INSERT INTO public.user_profiles (id, email, role, team_name) VALUES
 ('aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa', 'lsg@ipl.com', 'team', 'Lucknow Super Giants'),
 ('bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb', 'rr@ipl.com', 'team', 'Rajasthan Royals')
 ON CONFLICT (email) DO NOTHING;
-
--- Initialize current_auction table with a single row
-INSERT INTO public.current_auction (is_active) VALUES (false);
-
