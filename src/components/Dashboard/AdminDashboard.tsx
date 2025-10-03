@@ -205,7 +205,7 @@ export function AdminDashboard() {
         .update({ is_active: false })
         .eq('is_active', true);
 
-      toast.info(`${currentAuctionPlayer.name} went unsold`);
+      toast(`${currentAuctionPlayer.name} went unsold`);
       resetAuction();
     } catch (error) {
       console.error('Error marking player unsold:', error);
