@@ -128,7 +128,7 @@ export function AuctionPanel({ players, teams, onUpdate }: AuctionPanelProps) {
         })
         .eq('id', currentAuction.id);
 
-      toast.info(`${currentPlayer.name} went unsold`);
+      toast(`${currentPlayer.name} went unsold`);
       resetAuction();
     } catch (error) {
       console.error('Error marking player unsold:', error);
