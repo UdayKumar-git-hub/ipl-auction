@@ -700,7 +700,7 @@ export function AdminDashboard() {
         </div>
       )}
 
-      {/* Modals */}
+      {/* Modals */ }
       {showAddPlayer && (
         <AddPlayerModal
           onClose={() => setShowAddPlayer(false)}
@@ -725,6 +725,6 @@ export function AdminDashboard() {
           }}
         />
       )}
-    </div>
+    </div> 
   );
 }
