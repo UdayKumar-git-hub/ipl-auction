@@ -56,7 +56,7 @@ export function AdminDashboard() {
   const fetchCurrentAuction = async () => {
     try {
       const { data: auctionData, error } = await supabase
-        .from('current_auction')
+        .from('auctions')
         .select(`
           *,
           players (
@@ -104,15 +104,26 @@ export function AdminDashboard() {
   const startAuction = async (player: Player) => {
     setAuctionLoading(true);
     try {
-      // Update current_auction table
+      // Check if there's already an active auction
+      const { data: existingAuction } = await supabase
+        .from('auctions')
+        .select('id')
+        .eq('is_active', true)
+        .maybeSingle();
+
+      if (existingAuction) {
+        toast.error('An auction is already in progress');
+        setAuctionLoading(false);
+        return;
+      }
+
+      // Create new auction
       const { error } = await supabase
-        .from('current_auction')
-        .upsert({
-          id: '00000000-0000-0000-0000-000000000000', // Use a fixed ID for single row
+        .from('auctions')
+        .insert({
           player_id: player.id,
           current_price: player.base_price,
-          is_active: true,
-          updated_at: new Date().toISOString()
+          is_active: true
         });
 
       if (error) throw error;
@@ -135,7 +146,7 @@ export function AdminDashboard() {
 
     try {
       await supabase
-        .from('current_auction')
+        .from('auctions')
         .update({ current_price: newBid })
         .eq('is_active', true);
     } catch (error) {
@@ -159,30 +170,26 @@ export function AdminDashboard() {
         return;
       }
 
-      // Update player
-      await supabase
-        .from('players')
-        .update({
-          is_sold: true,
-          current_price: currentBid,
-          team_id: selectedTeamId
-        })
-        .eq('id', currentAuctionPlayer.id);
+      // Get current auction
+      const { data: auction } = await supabase
+        .from('auctions')
+        .select('id')
+        .eq('is_active', true)
+        .maybeSingle();
 
-      // Update team
-      await supabase
-        .from('teams')
-        .update({
-          purse_remaining: team.purse_remaining - currentBid,
-          players_count: team.players_count + 1
-        })
-        .eq('id', selectedTeamId);
+      if (!auction) {
+        throw new Error('No active auction found');
+      }
 
-      // End auction
-      await supabase
-        .from('current_auction')
-        .update({ is_active: false })
-        .eq('is_active', true);
+      // Use the sell_player function for atomic transaction
+      const { error: sellError } = await supabase.rpc('sell_player', {
+        p_id: currentAuctionPlayer.id,
+        t_id: selectedTeamId,
+        a_id: auction.id,
+        sell_price: currentBid
+      });
+
+      if (sellError) throw sellError;
 
       toast.success(`${currentAuctionPlayer.name} sold to ${team.name} for ₹${currentBid.toLocaleString()}`);
       resetAuction();
@@ -201,7 +208,7 @@ export function AdminDashboard() {
     setAuctionLoading(true);
     try {
       await supabase
-        .from('current_auction')
+        .from('auctions')
         .update({ is_active: false })
         .eq('is_active', true);
 
