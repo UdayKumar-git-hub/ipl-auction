@@ -48,11 +48,11 @@ export function PlayerCard({ player, onUpdate }: PlayerCardProps) {
 
   return (
     <div className="bg-white rounded-xl shadow-lg overflow-hidden hover:shadow-xl transition-shadow border-2 border-gray-200">
-      <div className="relative">
+      <div className="relative h-48 bg-gradient-to-br from-gray-100 to-gray-200 flex items-center justify-center p-4">
         <img
           src={player.photo_url}
           alt={player.name}
-          className="w-full h-48 object-cover"
+          className="max-w-full max-h-full object-contain"
         />
         <div className="absolute top-2 right-2">
           <span className={`px-2 py-1 rounded-full text-xs font-medium ${getRoleColor(player.role)}`}>

@@ -158,11 +158,11 @@ export function AuctionPanel({ players, teams, onUpdate }: AuctionPanelProps) {
           {selectedPlayer && showPlayerDetails && (
             <div className="bg-gray-50 rounded-lg p-4 mt-4 animate-fade-in">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
+                <div className="h-48 bg-gradient-to-br from-gray-100 to-gray-200 rounded-lg flex items-center justify-center p-4">
                   <img
                     src={selectedPlayer.photo_url}
                     alt={selectedPlayer.name}
-                    className="w-full h-48 object-cover rounded-lg"
+                    className="max-w-full max-h-full object-contain"
                   />
                 </div>
                 <div className="space-y-3 flex flex-col justify-between">
@@ -205,8 +205,8 @@ export function AuctionPanel({ players, teams, onUpdate }: AuctionPanelProps) {
       {currentPlayer ? (
         <div className="bg-gradient-to-r from-yellow-400 to-yellow-500 rounded-2xl p-6 shadow-2xl text-black">
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                <div>
-                    <img src={currentPlayer.photo_url} alt={currentPlayer.name} className="w-full h-64 object-cover rounded-xl shadow-lg" />
+                <div className="h-64 bg-gradient-to-br from-black/20 to-black/30 rounded-xl shadow-lg flex items-center justify-center p-4">
+                    <img src={currentPlayer.photo_url} alt={currentPlayer.name} className="max-w-full max-h-full object-contain" />
                 </div>
                 <div className="space-y-4">
                     <div>
@@ -273,7 +273,9 @@ export function AuctionPanel({ players, teams, onUpdate }: AuctionPanelProps) {
           {unsoldPlayers.slice(0, 6).map(player => (
             <div key={player.id} className="bg-white rounded-lg shadow p-3 hover:shadow-lg transition-shadow">
               <div className="flex items-center space-x-3">
-                <img src={player.photo_url} alt={player.name} className="w-12 h-12 rounded-full object-cover" />
+                <div className="w-12 h-12 rounded-full bg-gradient-to-br from-gray-100 to-gray-200 flex items-center justify-center p-1 overflow-hidden flex-shrink-0">
+                  <img src={player.photo_url} alt={player.name} className="w-full h-full object-contain" />
+                </div>
                 <div className="flex-1">
                   <h4 className="font-medium text-gray-900">{player.name}</h4>
                   <p className="text-sm text-gray-500">{player.role}</p>

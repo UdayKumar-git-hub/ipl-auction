@@ -431,15 +431,15 @@ export function AdminDashboard() {
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {teams.map(team => (
               <div key={team.id} className="bg-white rounded-xl shadow-lg overflow-hidden hover:shadow-xl transition-shadow border-2 border-gray-200">
-                <div className="relative">
+                <div className="relative h-32 bg-gradient-to-r from-yellow-400 to-yellow-500 flex items-center justify-center p-4">
                   <img
                     src={team.logo_url}
                     alt={team.name}
-                    className="w-full h-32 object-cover bg-gradient-to-r from-yellow-400 to-yellow-500"
+                    className="max-w-full max-h-full object-contain"
                   />
                   <div className="absolute inset-0 bg-black/20"></div>
-                  <div className="absolute bottom-4 left-4">
-                    <h3 className="text-xl font-bold text-white">{team.short_name}</h3>
+                  <div className="absolute bottom-4 left-4 z-10">
+                    <h3 className="text-xl font-bold text-white drop-shadow-lg">{team.short_name}</h3>
                   </div>
                 </div>
 
@@ -535,11 +535,13 @@ export function AdminDashboard() {
                   {filteredUnsoldPlayers.slice(0, 10).map(player => (
                     <div key={player.id} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors">
                       <div className="flex items-center space-x-3">
-                        <img
-                          src={player.photo_url}
-                          alt={player.name}
-                          className="w-10 h-10 rounded-full object-cover"
-                        />
+                        <div className="w-10 h-10 rounded-full bg-gradient-to-br from-gray-100 to-gray-200 flex items-center justify-center p-1 overflow-hidden flex-shrink-0">
+                          <img
+                            src={player.photo_url}
+                            alt={player.name}
+                            className="w-full h-full object-contain"
+                          />
+                        </div>
                         <div>
                           <h4 className="font-medium text-gray-900">{player.name}</h4>
                           <p className="text-sm text-gray-500">{player.role} • {player.country}</p>
@@ -573,11 +575,11 @@ export function AdminDashboard() {
           {currentAuctionPlayer ? (
             <div className="bg-gradient-to-r from-yellow-400 to-yellow-500 rounded-2xl p-8 text-black">
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-                <div>
+                <div className="h-64 bg-gradient-to-br from-black/20 to-black/30 rounded-xl flex items-center justify-center p-4">
                   <img
                     src={currentAuctionPlayer.photo_url}
                     alt={currentAuctionPlayer.name}
-                    className="w-full h-64 object-cover rounded-xl"
+                    className="max-w-full max-h-full object-contain"
                   />
                 </div>
                 <div className="space-y-4">
@@ -682,11 +684,13 @@ export function AdminDashboard() {
               {unsoldPlayers.slice(0, 12).map(player => (
                 <div key={player.id} className="bg-white rounded-lg shadow-md p-4 hover:shadow-lg transition-shadow">
                   <div className="flex items-center space-x-3">
-                    <img
-                      src={player.photo_url}
-                      alt={player.name}
-                      className="w-12 h-12 rounded-full object-cover"
-                    />
+                    <div className="w-12 h-12 rounded-full bg-gradient-to-br from-gray-100 to-gray-200 flex items-center justify-center p-1 overflow-hidden flex-shrink-0">
+                      <img
+                        src={player.photo_url}
+                        alt={player.name}
+                        className="w-full h-full object-contain"
+                      />
+                    </div>
                     <div className="flex-1">
                       <h4 className="font-medium text-gray-900">{player.name}</h4>
                       <p className="text-sm text-gray-500">{player.role}</p>

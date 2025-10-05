@@ -15,15 +15,15 @@ export function TeamCard({ team, onUpdate }: TeamCardProps) {
 
   return (
     <div className="bg-white rounded-xl shadow-lg overflow-hidden hover:shadow-xl transition-shadow border-2 border-gray-200">
-      <div className="relative">
+      <div className="relative h-32 bg-gradient-to-r from-yellow-400 to-yellow-500 flex items-center justify-center p-4">
         <img
           src={team.logo_url}
           alt={team.name}
-          className="w-full h-32 object-cover bg-gradient-to-r from-yellow-400 to-yellow-500"
+          className="max-w-full max-h-full object-contain"
         />
         <div className="absolute inset-0 bg-black/20"></div>
-        <div className="absolute bottom-4 left-4">
-          <h3 className="text-xl font-bold text-white">{team.short_name}</h3>
+        <div className="absolute bottom-4 left-4 z-10">
+          <h3 className="text-xl font-bold text-white drop-shadow-lg">{team.short_name}</h3>
         </div>
       </div>
 
