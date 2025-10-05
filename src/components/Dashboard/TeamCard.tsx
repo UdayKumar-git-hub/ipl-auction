@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Edit, Trophy, Users, DollarSign } from 'lucide-react';
+import { CreditCard as Edit, Trophy, Users, DollarSign } from 'lucide-react';
 import { Team } from '../../types';
 
 interface TeamCardProps {
