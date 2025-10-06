@@ -203,57 +203,175 @@ export function AuctionPanel({ players, teams, onUpdate }: AuctionPanelProps) {
         </div>
       )}
       {currentPlayer ? (
-        <div className="bg-gradient-to-r from-yellow-400 to-yellow-500 rounded-2xl p-6 shadow-2xl text-black">
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                <div className="h-64 bg-gradient-to-br from-black/20 to-black/30 rounded-xl shadow-lg flex items-center justify-center p-4">
-                    <img src={currentPlayer.photo_url} alt={currentPlayer.name} className="max-w-full max-h-full object-contain" />
+        <div className="bg-gradient-to-r from-yellow-400 to-yellow-500 rounded-2xl p-8 shadow-2xl text-black">
+            <div className="grid grid-cols-1 lg:grid-cols-5 gap-8">
+                <div className="lg:col-span-2 space-y-4">
+                    <div className="h-96 bg-gradient-to-br from-black/20 to-black/30 rounded-2xl shadow-2xl flex items-center justify-center p-6 border-4 border-white/30">
+                        <img src={currentPlayer.photo_url} alt={currentPlayer.name} className="max-w-full max-h-full object-contain" />
+                    </div>
+
+                    <div className="bg-black/30 backdrop-blur-sm rounded-xl p-4 border-2 border-white/30">
+                        <h4 className="text-lg font-bold mb-3 text-white">Career Statistics</h4>
+                        <div className="grid grid-cols-2 gap-3">
+                            <div className="bg-white/20 rounded-lg p-3">
+                                <p className="text-xs opacity-80">Matches</p>
+                                <p className="text-2xl font-bold">{currentPlayer.stats.matches || 0}</p>
+                            </div>
+                            {currentPlayer.stats.runs && (
+                                <>
+                                    <div className="bg-white/20 rounded-lg p-3">
+                                        <p className="text-xs opacity-80">Runs</p>
+                                        <p className="text-2xl font-bold">{currentPlayer.stats.runs}</p>
+                                    </div>
+                                    <div className="bg-white/20 rounded-lg p-3">
+                                        <p className="text-xs opacity-80">Average</p>
+                                        <p className="text-2xl font-bold">{currentPlayer.stats.average || '-'}</p>
+                                    </div>
+                                    <div className="bg-white/20 rounded-lg p-3">
+                                        <p className="text-xs opacity-80">Strike Rate</p>
+                                        <p className="text-2xl font-bold">{currentPlayer.stats.strike_rate || '-'}</p>
+                                    </div>
+                                    <div className="bg-white/20 rounded-lg p-3">
+                                        <p className="text-xs opacity-80">50s</p>
+                                        <p className="text-2xl font-bold">{currentPlayer.stats['50s'] || 0}</p>
+                                    </div>
+                                    <div className="bg-white/20 rounded-lg p-3">
+                                        <p className="text-xs opacity-80">100s</p>
+                                        <p className="text-2xl font-bold">{currentPlayer.stats['100s'] || 0}</p>
+                                    </div>
+                                    <div className="bg-white/20 rounded-lg p-3">
+                                        <p className="text-xs opacity-80">High Score</p>
+                                        <p className="text-2xl font-bold">{currentPlayer.stats.high_score || '-'}</p>
+                                    </div>
+                                    {currentPlayer.stats.rating && (
+                                        <div className="bg-white/20 rounded-lg p-3">
+                                            <p className="text-xs opacity-80">Rating</p>
+                                            <p className="text-2xl font-bold">{currentPlayer.stats.rating}/10</p>
+                                        </div>
+                                    )}
+                                </>
+                            )}
+                            {currentPlayer.stats.wickets && (
+                                <>
+                                    <div className="bg-white/20 rounded-lg p-3">
+                                        <p className="text-xs opacity-80">Wickets</p>
+                                        <p className="text-2xl font-bold">{currentPlayer.stats.wickets}</p>
+                                    </div>
+                                    <div className="bg-white/20 rounded-lg p-3">
+                                        <p className="text-xs opacity-80">Economy</p>
+                                        <p className="text-2xl font-bold">{currentPlayer.stats.economy || '-'}</p>
+                                    </div>
+                                    <div className="bg-white/20 rounded-lg p-3">
+                                        <p className="text-xs opacity-80">Average</p>
+                                        <p className="text-2xl font-bold">{currentPlayer.stats.average || '-'}</p>
+                                    </div>
+                                    <div className="bg-white/20 rounded-lg p-3">
+                                        <p className="text-xs opacity-80">Strike Rate</p>
+                                        <p className="text-2xl font-bold">{currentPlayer.stats.strike_rate || '-'}</p>
+                                    </div>
+                                    <div className="bg-white/20 rounded-lg p-3">
+                                        <p className="text-xs opacity-80">4W</p>
+                                        <p className="text-2xl font-bold">{currentPlayer.stats['4w'] || 0}</p>
+                                    </div>
+                                    <div className="bg-white/20 rounded-lg p-3">
+                                        <p className="text-xs opacity-80">5W</p>
+                                        <p className="text-2xl font-bold">{currentPlayer.stats['5w'] || 0}</p>
+                                    </div>
+                                    {currentPlayer.stats.rating && (
+                                        <div className="bg-white/20 rounded-lg p-3">
+                                            <p className="text-xs opacity-80">Rating</p>
+                                            <p className="text-2xl font-bold">{currentPlayer.stats.rating}/10</p>
+                                        </div>
+                                    )}
+                                </>
+                            )}
+                            {currentPlayer.stats.batting_rating && (
+                                <>
+                                    <div className="bg-white/20 rounded-lg p-3">
+                                        <p className="text-xs opacity-80">Runs</p>
+                                        <p className="text-2xl font-bold">{currentPlayer.stats.runs || 0}</p>
+                                    </div>
+                                    <div className="bg-white/20 rounded-lg p-3">
+                                        <p className="text-xs opacity-80">Wickets</p>
+                                        <p className="text-2xl font-bold">{currentPlayer.stats.wickets || 0}</p>
+                                    </div>
+                                    <div className="bg-white/20 rounded-lg p-3">
+                                        <p className="text-xs opacity-80">Bat Rating</p>
+                                        <p className="text-2xl font-bold">{currentPlayer.stats.batting_rating}/10</p>
+                                    </div>
+                                    <div className="bg-white/20 rounded-lg p-3">
+                                        <p className="text-xs opacity-80">Bowl Rating</p>
+                                        <p className="text-2xl font-bold">{currentPlayer.stats.bowling_rating}/10</p>
+                                    </div>
+                                    <div className="bg-white/20 rounded-lg p-3 col-span-2">
+                                        <p className="text-xs opacity-80">Overall Rating</p>
+                                        <p className="text-2xl font-bold">{currentPlayer.stats.overall_rating}/10</p>
+                                    </div>
+                                </>
+                            )}
+                        </div>
+                    </div>
                 </div>
-                <div className="space-y-4">
+
+                <div className="lg:col-span-3 space-y-5">
                     <div>
-                        <h3 className="text-3xl font-bold">{currentPlayer.name}</h3>
-                        <p className="text-xl opacity-80">{currentPlayer.role} • {currentPlayer.country}</p>
+                        <h3 className="text-5xl font-black mb-2">{currentPlayer.name}</h3>
+                        <p className="text-2xl opacity-80 mb-1">{currentPlayer.role} • {currentPlayer.country}</p>
                     </div>
-                    <div className="bg-black/20 rounded-lg p-3">
-                        <p className="text-sm opacity-80">Base Price</p>
-                        <p className="text-2xl font-bold">₹{currentPlayer.base_price.toLocaleString()}</p>
+
+                    <div className="grid grid-cols-2 gap-4">
+                        <div className="bg-black/20 rounded-xl p-4 border-2 border-white/20">
+                            <p className="text-sm opacity-80">Base Price</p>
+                            <p className="text-3xl font-bold">₹{(currentPlayer.base_price / 10000000).toFixed(2)}Cr</p>
+                        </div>
+                        <div className="bg-white/30 backdrop-blur-sm rounded-xl p-4 border-2 border-white/50">
+                            <p className="text-sm opacity-80">Current Bid</p>
+                            <p className="text-5xl font-black">₹{(currentBid / 10000000).toFixed(2)}Cr</p>
+                        </div>
                     </div>
-                    <div className="bg-white/20 rounded-lg p-4">
-                        <p className="text-sm opacity-80">Current Bid</p>
-                        <p className="text-4xl font-bold">₹{currentBid.toLocaleString()}</p>
+
+                    <div>
+                        <p className="text-sm font-bold mb-2 opacity-80">BID INCREMENT</p>
+                        <div className="grid grid-cols-4 gap-3">
+                            <button onClick={() => updateBid(500000)} className="bid-btn">+5L</button>
+                            <button onClick={() => updateBid(1000000)} className="bid-btn">+10L</button>
+                            <button onClick={() => updateBid(2500000)} className="bid-btn">+25L</button>
+                            <button onClick={() => updateBid(5000000)} className="bid-btn">+50L</button>
+                        </div>
                     </div>
-                    <div className="flex space-x-2">
-                        <button onClick={() => updateBid(500000)} className="bid-btn">+5L</button>
-                        <button onClick={() => updateBid(1000000)} className="bid-btn">+10L</button>
-                        <button onClick={() => updateBid(2500000)} className="bid-btn">+25L</button>
-                    </div>
-                    <div className="space-y-3 pt-2">
-                        <select
-                            value={selectedTeamId}
-                            onChange={(e) => setSelectedTeamId(e.target.value)}
-                            className="w-full px-4 py-3 rounded-lg bg-white/30 border border-white/40 text-black font-semibold placeholder-black/60 focus:ring-2 focus:ring-black"
-                        >
-                            <option value="">-- Select Winning Team --</option>
-                            {teams.map(team => (
-                                <option key={team.id} value={team.id} className="text-black font-medium">
-                                    {team.name} (Purse: ₹{(team.purse_remaining / 10000000).toFixed(2)}Cr)
-                                </option>
-                            ))}
-                        </select>
-                        <div className="flex space-x-3">
+
+                    <div className="space-y-4 pt-3">
+                        <div>
+                            <label className="text-sm font-bold mb-2 block opacity-80">SELECT WINNING TEAM</label>
+                            <select
+                                value={selectedTeamId}
+                                onChange={(e) => setSelectedTeamId(e.target.value)}
+                                className="w-full px-5 py-4 rounded-xl bg-white/30 backdrop-blur-sm border-2 border-white/40 text-black font-bold placeholder-black/60 focus:ring-4 focus:ring-white/50 text-lg"
+                            >
+                                <option value="">-- Select Team --</option>
+                                {teams.map(team => (
+                                    <option key={team.id} value={team.id} className="text-black font-semibold">
+                                        {team.name} (₹{(team.purse_remaining / 10000000).toFixed(2)}Cr)
+                                    </option>
+                                ))}
+                            </select>
+                        </div>
+
+                        <div className="grid grid-cols-2 gap-4">
                             <button
                                 onClick={soldPlayer}
                                 disabled={loading || !selectedTeamId}
-                                className="action-btn bg-green-600 hover:bg-green-700"
+                                className="action-btn bg-green-600 hover:bg-green-700 text-xl py-5"
                             >
-                                <Trophy className="h-5 w-5" />
+                                <Trophy className="h-6 w-6" />
                                 <span>SOLD</span>
                             </button>
                             <button
                                 onClick={unsoldPlayer}
                                 disabled={loading}
-                                className="action-btn bg-red-600 hover:bg-red-700"
+                                className="action-btn bg-red-600 hover:bg-red-700 text-xl py-5"
                             >
-                                <SkipForward className="h-5 w-5" />
+                                <SkipForward className="h-6 w-6" />
                                 <span>UNSOLD</span>
                             </button>
                         </div>

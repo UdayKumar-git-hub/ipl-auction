@@ -574,94 +574,178 @@ export function AdminDashboard() {
           {/* Current Auction Display */}
           {currentAuctionPlayer ? (
             <div className="bg-gradient-to-r from-yellow-400 to-yellow-500 rounded-2xl p-8 text-black">
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-                <div className="h-64 bg-gradient-to-br from-black/20 to-black/30 rounded-xl flex items-center justify-center p-4">
-                  <img
-                    src={currentAuctionPlayer.photo_url}
-                    alt={currentAuctionPlayer.name}
-                    className="max-w-full max-h-full object-contain"
-                  />
-                </div>
-                <div className="space-y-4">
-                  <div>
-                    <h3 className="text-3xl font-bold">{currentAuctionPlayer.name}</h3>
-                    <p className="text-xl opacity-80">{currentAuctionPlayer.role} • {currentAuctionPlayer.country}</p>
+              <div className="grid grid-cols-1 lg:grid-cols-5 gap-8">
+                <div className="lg:col-span-2 space-y-4">
+                  <div className="h-96 bg-gradient-to-br from-black/20 to-black/30 rounded-2xl shadow-2xl flex items-center justify-center p-6 border-4 border-white/30">
+                    <img
+                      src={currentAuctionPlayer.photo_url}
+                      alt={currentAuctionPlayer.name}
+                      className="max-w-full max-h-full object-contain"
+                    />
                   </div>
-                  
-                  <div className="bg-black/20 rounded-lg p-4">
-                    <p className="text-sm opacity-80">Base Price</p>
-                    <p className="text-2xl font-bold">₹{currentAuctionPlayer.base_price.toLocaleString()}</p>
-                  </div>
-                  
-                  <div className="bg-white/20 rounded-lg p-4">
-                    <p className="text-sm opacity-80">Current Bid</p>
-                    <p className="text-4xl font-bold">₹{currentBid.toLocaleString()}</p>
-                  </div>
-                  
-                  <div className="bg-white/10 rounded-lg p-4">
-                    <p className="text-sm opacity-80 mb-2">Career Stats</p>
-                    <div className="grid grid-cols-2 gap-2 text-sm">
-                      <div>
-                        <span className="opacity-80">Matches:</span>
-                        <span className="font-medium ml-1">{currentAuctionPlayer.stats.matches}</span>
+
+                  <div className="bg-black/30 backdrop-blur-sm rounded-xl p-4 border-2 border-white/30">
+                    <h4 className="text-lg font-bold mb-3 text-white">Career Statistics</h4>
+                    <div className="grid grid-cols-2 gap-3">
+                      <div className="bg-white/20 rounded-lg p-3">
+                        <p className="text-xs opacity-80">Matches</p>
+                        <p className="text-2xl font-bold">{currentAuctionPlayer.stats.matches || 0}</p>
                       </div>
                       {currentAuctionPlayer.stats.runs && (
-                        <div>
-                          <span className="opacity-80">Runs:</span>
-                          <span className="font-medium ml-1">{currentAuctionPlayer.stats.runs}</span>
-                        </div>
+                        <>
+                          <div className="bg-white/20 rounded-lg p-3">
+                            <p className="text-xs opacity-80">Runs</p>
+                            <p className="text-2xl font-bold">{currentAuctionPlayer.stats.runs}</p>
+                          </div>
+                          <div className="bg-white/20 rounded-lg p-3">
+                            <p className="text-xs opacity-80">Average</p>
+                            <p className="text-2xl font-bold">{currentAuctionPlayer.stats.average || '-'}</p>
+                          </div>
+                          <div className="bg-white/20 rounded-lg p-3">
+                            <p className="text-xs opacity-80">Strike Rate</p>
+                            <p className="text-2xl font-bold">{currentAuctionPlayer.stats.strike_rate || '-'}</p>
+                          </div>
+                          <div className="bg-white/20 rounded-lg p-3">
+                            <p className="text-xs opacity-80">50s</p>
+                            <p className="text-2xl font-bold">{currentAuctionPlayer.stats['50s'] || 0}</p>
+                          </div>
+                          <div className="bg-white/20 rounded-lg p-3">
+                            <p className="text-xs opacity-80">100s</p>
+                            <p className="text-2xl font-bold">{currentAuctionPlayer.stats['100s'] || 0}</p>
+                          </div>
+                          <div className="bg-white/20 rounded-lg p-3">
+                            <p className="text-xs opacity-80">High Score</p>
+                            <p className="text-2xl font-bold">{currentAuctionPlayer.stats.high_score || '-'}</p>
+                          </div>
+                          {currentAuctionPlayer.stats.rating && (
+                            <div className="bg-white/20 rounded-lg p-3">
+                              <p className="text-xs opacity-80">Rating</p>
+                              <p className="text-2xl font-bold">{currentAuctionPlayer.stats.rating}/10</p>
+                            </div>
+                          )}
+                        </>
                       )}
                       {currentAuctionPlayer.stats.wickets && (
-                        <div>
-                          <span className="opacity-80">Wickets:</span>
-                          <span className="font-medium ml-1">{currentAuctionPlayer.stats.wickets}</span>
-                        </div>
+                        <>
+                          <div className="bg-white/20 rounded-lg p-3">
+                            <p className="text-xs opacity-80">Wickets</p>
+                            <p className="text-2xl font-bold">{currentAuctionPlayer.stats.wickets}</p>
+                          </div>
+                          <div className="bg-white/20 rounded-lg p-3">
+                            <p className="text-xs opacity-80">Economy</p>
+                            <p className="text-2xl font-bold">{currentAuctionPlayer.stats.economy || '-'}</p>
+                          </div>
+                          <div className="bg-white/20 rounded-lg p-3">
+                            <p className="text-xs opacity-80">Average</p>
+                            <p className="text-2xl font-bold">{currentAuctionPlayer.stats.average || '-'}</p>
+                          </div>
+                          <div className="bg-white/20 rounded-lg p-3">
+                            <p className="text-xs opacity-80">Strike Rate</p>
+                            <p className="text-2xl font-bold">{currentAuctionPlayer.stats.strike_rate || '-'}</p>
+                          </div>
+                          <div className="bg-white/20 rounded-lg p-3">
+                            <p className="text-xs opacity-80">4W</p>
+                            <p className="text-2xl font-bold">{currentAuctionPlayer.stats['4w'] || 0}</p>
+                          </div>
+                          <div className="bg-white/20 rounded-lg p-3">
+                            <p className="text-xs opacity-80">5W</p>
+                            <p className="text-2xl font-bold">{currentAuctionPlayer.stats['5w'] || 0}</p>
+                          </div>
+                          {currentAuctionPlayer.stats.rating && (
+                            <div className="bg-white/20 rounded-lg p-3">
+                              <p className="text-xs opacity-80">Rating</p>
+                              <p className="text-2xl font-bold">{currentAuctionPlayer.stats.rating}/10</p>
+                            </div>
+                          )}
+                        </>
                       )}
-                      {currentAuctionPlayer.stats.average && (
-                        <div>
-                          <span className="opacity-80">Average:</span>
-                          <span className="font-medium ml-1">{currentAuctionPlayer.stats.average}</span>
-                        </div>
+                      {currentAuctionPlayer.stats.batting_rating && (
+                        <>
+                          <div className="bg-white/20 rounded-lg p-3">
+                            <p className="text-xs opacity-80">Runs</p>
+                            <p className="text-2xl font-bold">{currentAuctionPlayer.stats.runs || 0}</p>
+                          </div>
+                          <div className="bg-white/20 rounded-lg p-3">
+                            <p className="text-xs opacity-80">Wickets</p>
+                            <p className="text-2xl font-bold">{currentAuctionPlayer.stats.wickets || 0}</p>
+                          </div>
+                          <div className="bg-white/20 rounded-lg p-3">
+                            <p className="text-xs opacity-80">Bat Rating</p>
+                            <p className="text-2xl font-bold">{currentAuctionPlayer.stats.batting_rating}/10</p>
+                          </div>
+                          <div className="bg-white/20 rounded-lg p-3">
+                            <p className="text-xs opacity-80">Bowl Rating</p>
+                            <p className="text-2xl font-bold">{currentAuctionPlayer.stats.bowling_rating}/10</p>
+                          </div>
+                          <div className="bg-white/20 rounded-lg p-3 col-span-2">
+                            <p className="text-xs opacity-80">Overall Rating</p>
+                            <p className="text-2xl font-bold">{currentAuctionPlayer.stats.overall_rating}/10</p>
+                          </div>
+                        </>
                       )}
                     </div>
                   </div>
+                </div>
 
-                  <div className="flex space-x-2">
-                    <button onClick={() => updateBid(500000)} className="bg-white/20 hover:bg-white/30 px-4 py-2 rounded-lg transition-colors">+5L</button>
-                    <button onClick={() => updateBid(1000000)} className="bg-white/20 hover:bg-white/30 px-4 py-2 rounded-lg transition-colors">+10L</button>
-                    <button onClick={() => updateBid(2500000)} className="bg-white/20 hover:bg-white/30 px-4 py-2 rounded-lg transition-colors">+25L</button>
-                    <button onClick={() => updateBid(5000000)} className="bg-white/20 hover:bg-white/30 px-4 py-2 rounded-lg transition-colors">+50L</button>
+                <div className="lg:col-span-3 space-y-5">
+                  <div>
+                    <h3 className="text-5xl font-black mb-2">{currentAuctionPlayer.name}</h3>
+                    <p className="text-2xl opacity-80 mb-1">{currentAuctionPlayer.role} • {currentAuctionPlayer.country}</p>
                   </div>
 
-                  <div className="space-y-4">
-                    <select
-                      value={selectedTeamId}
-                      onChange={(e) => setSelectedTeamId(e.target.value)}
-                      className="w-full px-4 py-2 rounded-lg bg-white/20 border border-white/30 text-black placeholder-black/60"
-                    >
-                      <option value="">Select Team</option>
-                      {teams.map(team => (
-                        <option key={team.id} value={team.id} className="text-black">
-                          {team.name} (₹{(team.purse_remaining / 10000000).toFixed(1)}Cr)
-                        </option>
-                      ))}
-                    </select>
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="bg-black/20 rounded-xl p-4 border-2 border-white/20">
+                      <p className="text-sm opacity-80">Base Price</p>
+                      <p className="text-3xl font-bold">₹{(currentAuctionPlayer.base_price / 10000000).toFixed(2)}Cr</p>
+                    </div>
+                    <div className="bg-white/30 backdrop-blur-sm rounded-xl p-4 border-2 border-white/50">
+                      <p className="text-sm opacity-80">Current Bid</p>
+                      <p className="text-5xl font-black">₹{(currentBid / 10000000).toFixed(2)}Cr</p>
+                    </div>
+                  </div>
 
-                    <div className="flex space-x-3">
+                  <div>
+                    <p className="text-sm font-bold mb-2 opacity-80">BID INCREMENT</p>
+                    <div className="grid grid-cols-4 gap-3">
+                      <button onClick={() => updateBid(500000)} className="bg-white/20 hover:bg-white/40 px-4 py-3 rounded-xl font-bold transition-all">+5L</button>
+                      <button onClick={() => updateBid(1000000)} className="bg-white/20 hover:bg-white/40 px-4 py-3 rounded-xl font-bold transition-all">+10L</button>
+                      <button onClick={() => updateBid(2500000)} className="bg-white/20 hover:bg-white/40 px-4 py-3 rounded-xl font-bold transition-all">+25L</button>
+                      <button onClick={() => updateBid(5000000)} className="bg-white/20 hover:bg-white/40 px-4 py-3 rounded-xl font-bold transition-all">+50L</button>
+                    </div>
+                  </div>
+
+                  <div className="space-y-4 pt-3">
+                    <div>
+                      <label className="text-sm font-bold mb-2 block opacity-80">SELECT WINNING TEAM</label>
+                      <select
+                        value={selectedTeamId}
+                        onChange={(e) => setSelectedTeamId(e.target.value)}
+                        className="w-full px-5 py-4 rounded-xl bg-white/30 backdrop-blur-sm border-2 border-white/40 text-black font-bold placeholder-black/60 focus:ring-4 focus:ring-white/50 text-lg"
+                      >
+                        <option value="">-- Select Team --</option>
+                        {teams.map(team => (
+                          <option key={team.id} value={team.id} className="text-black font-semibold">
+                            {team.name} (₹{(team.purse_remaining / 10000000).toFixed(2)}Cr)
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+
+                    <div className="grid grid-cols-2 gap-4">
                       <button
                         onClick={soldPlayer}
                         disabled={auctionLoading || !selectedTeamId}
-                        className="flex-1 bg-green-600 hover:bg-green-700 text-white font-bold py-3 px-4 rounded-lg transition-colors disabled:opacity-50 flex items-center justify-center space-x-2"
+                        className="bg-green-600 hover:bg-green-700 text-white font-black py-5 px-4 rounded-xl transition-all disabled:opacity-50 flex items-center justify-center space-x-2 text-xl"
                       >
-                        <Trophy className="h-5 w-5" />
+                        <Trophy className="h-6 w-6" />
                         <span>SOLD</span>
                       </button>
                       <button
                         onClick={unsoldPlayer}
                         disabled={auctionLoading}
-                        className="flex-1 bg-red-600 hover:bg-red-700 text-white font-bold py-3 px-4 rounded-lg transition-colors disabled:opacity-50 flex items-center justify-center space-x-2"
+                        className="bg-red-600 hover:bg-red-700 text-white font-black py-5 px-4 rounded-xl transition-all disabled:opacity-50 flex items-center justify-center space-x-2 text-xl"
                       >
-                        <Eye className="h-5 w-5" />
+                        <Eye className="h-6 w-6" />
                         <span>UNSOLD</span>
                       </button>
                     </div>
