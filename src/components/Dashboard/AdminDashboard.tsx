@@ -26,6 +26,8 @@ export function AdminDashboard() {
   const [currentBid, setCurrentBid] = useState(0);
   const [selectedTeamId, setSelectedTeamId] = useState('');
   const [auctionLoading, setAuctionLoading] = useState(false);
+  const [isSpinning, setIsSpinning] = useState(false);
+  const [spinningPlayer, setSpinningPlayer] = useState<Player | null>(null);
 
   useEffect(() => {
     fetchData();
