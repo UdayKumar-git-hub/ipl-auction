@@ -8,9 +8,10 @@ interface AuctionPanelProps {
   players: Player[];
   teams: Team[];
   onUpdate: () => void;
+  auctionEventId: string; // ADDED: The ID of the current auction event is now required.
 }
 
-export function AuctionPanel({ players, teams, onUpdate }: AuctionPanelProps) {
+export function AuctionPanel({ players, teams, onUpdate, auctionEventId }: AuctionPanelProps) {
   const [currentAuction, setCurrentAuction] = useState<Auction | null>(null);
   const [currentPlayer, setCurrentPlayer] = useState<Player | null>(null);
   const [selectedPlayer, setSelectedPlayer] = useState<Player | null>(null);
@@ -45,7 +46,8 @@ export function AuctionPanel({ players, teams, onUpdate }: AuctionPanelProps) {
         .insert({
           player_id: player.id,
           current_price: player.base_price,
-          is_active: true
+          is_active: true,
+          auction_event_id: auctionEventId, // CRITICAL FIX: Pass the auction_event_id to the database.
         })
         .select()
         .single();
