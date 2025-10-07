@@ -95,10 +95,30 @@ export function AdminDashboard() {
       toast.error('No players available for selection');
       return;
     }
-    
-    const randomIndex = Math.floor(Math.random() * unsoldPlayers.length);
-    const randomPlayer = unsoldPlayers[randomIndex];
-    startAuction(randomPlayer);
+
+    setIsSpinning(true);
+    setShowPlayerSearch(false);
+
+    let spinCount = 0;
+    const totalSpins = 30;
+    const spinInterval = setInterval(() => {
+      const randomIndex = Math.floor(Math.random() * unsoldPlayers.length);
+      setSpinningPlayer(unsoldPlayers[randomIndex]);
+      spinCount++;
+
+      if (spinCount >= totalSpins) {
+        clearInterval(spinInterval);
+        const finalIndex = Math.floor(Math.random() * unsoldPlayers.length);
+        const randomPlayer = unsoldPlayers[finalIndex];
+
+        setTimeout(() => {
+          setSpinningPlayer(randomPlayer);
+          setIsSpinning(false);
+          startAuction(randomPlayer);
+          toast.success(`🎯 Selected: ${randomPlayer.name}`);
+        }, 300);
+      }
+    }, spinCount < 20 ? 50 : 100 + spinCount * 10);
   };
 
   const startAuction = async (player: Player) => {
@@ -507,18 +527,43 @@ export function AdminDashboard() {
                 </button>
                 <button
                   onClick={selectRandomPlayer}
-                  disabled={auctionLoading || unsoldPlayers.length === 0 || !!currentAuctionPlayer}
+                  disabled={auctionLoading || unsoldPlayers.length === 0 || !!currentAuctionPlayer || isSpinning}
                   className="bg-yellow-500 hover:bg-yellow-600 text-black font-bold px-4 py-2 rounded-lg transition-colors disabled:opacity-50 flex items-center space-x-2"
                 >
-                  <Shuffle className="h-4 w-4" />
-                  <span>Random Player</span>
+                  <Shuffle className={`h-4 w-4 ${isSpinning ? 'animate-spin' : ''}`} />
+                  <span>{isSpinning ? 'Selecting...' : 'Random Player'}</span>
                 </button>
               </div>
             </div>
             <p className="text-gray-600">Available players: {unsoldPlayers.length}</p>
-            
+
+            {/* Spinning Animation */}
+            {isSpinning && spinningPlayer && (
+              <div className="bg-gradient-to-r from-yellow-400 to-yellow-500 rounded-lg p-8 mt-4 animate-pulse border-4 border-yellow-600">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div className="h-64 bg-gradient-to-br from-black/20 to-black/30 rounded-xl flex items-center justify-center p-6 border-4 border-white/30">
+                    <img
+                      src={spinningPlayer.photo_url}
+                      alt={spinningPlayer.name}
+                      className="max-w-full max-h-full object-contain transition-all duration-100"
+                    />
+                  </div>
+                  <div className="space-y-4 flex flex-col justify-center items-center text-center">
+                    <div className="animate-bounce">
+                      <Shuffle className="h-20 w-20 text-black animate-spin" />
+                    </div>
+                    <h4 className="text-4xl font-black text-black">{spinningPlayer.name}</h4>
+                    <p className="text-2xl text-black/80">{spinningPlayer.role} • {spinningPlayer.country}</p>
+                    <div className="bg-black/20 rounded-lg px-4 py-2">
+                      <p className="text-lg font-bold">Base: ₹{(spinningPlayer.base_price / 10000000).toFixed(2)}Cr</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
+
             {/* Player Search Interface */}
-            {showPlayerSearch && (
+            {showPlayerSearch && !isSpinning && (
               <div className="mt-4 space-y-4">
                 <div className="relative">
                   <Search className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
