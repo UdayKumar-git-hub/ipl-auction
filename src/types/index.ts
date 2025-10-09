@@ -21,6 +21,7 @@ export interface Player {
   };
   team_id?: string;
   is_sold: boolean;
+  auction_event_id: string;
   created_at: string;
 }
 

@@ -139,13 +139,14 @@ export function AdminDashboard() {
         return;
       }
 
-      // Create new auction
+      // Create new auction - include auction_event_id from the player
       const { error } = await supabase
         .from('auctions')
         .insert({
           player_id: player.id,
           current_price: player.base_price,
-          is_active: true
+          is_active: true,
+          auction_event_id: player.auction_event_id
         });
 
       if (error) throw error;
